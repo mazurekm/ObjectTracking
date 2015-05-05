@@ -13,11 +13,12 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(OpenCV)
-
+add_subdirectory(FrameProcessing)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} OpenCV)
+target_link_libraries(${PROJECT_NAME} FrameProcessing)
 
 if(BOOST)
 		find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)

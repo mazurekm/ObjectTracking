@@ -1,28 +1,26 @@
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <memory>
+#include <FrameProcessing/VideoLoader.h>
+#include <FrameProcessing/TransformContainer.h>
 
-int main()
+int main(int argc, char **argv)
 {
-	std::shared_ptr<cv::VideoCapture> cap(new cv::VideoCapture(0));
-	if(false == cap->isOpened())
-	{
-		return -1;
-	}
+	CVideoLoader loader(argv[1]);
+	CTransformContainer container;
 
+	container.addTransform( std::shared_ptr<CImageTransform>(new RgbToGray () ) );
 
-	cv::namedWindow("Video", CV_WINDOW_AUTOSIZE);
-
+	cv::namedWindow( "w", CV_WINDOW_AUTOSIZE);
+	
 	while(true)
 	{
-		cv::Mat frame;
-		cap->read(frame);
-		cv::imshow("Video", frame);
+
+		cv::Mat frame = loader.getNextFrame();
+		container.perform(frame);
+		cv::imshow("w", frame);
 
 		if(cv::waitKey(30) == 27)
 		{
 			break;
 		}	
 	}
-	return 0;	
+	cv::waitKey(0);
 }
