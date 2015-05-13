@@ -1,5 +1,10 @@
 #include "TldAlgorithm.h"
+<<<<<<< HEAD
 #include <FrameProcessing/ImageMarker.h>
+=======
+#include "opencv2/tracking/tracker.hpp"
+#include <iostream>
+>>>>>>> 403350bb09aa6ded0c9e9e4805ea48694b2970fa
 
 CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::string &winName) : CAbstractAlgorithm(container, winName) 
 {
@@ -8,38 +13,32 @@ CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::st
 
 void CTldAlgorithm::perform(CVideoLoader &loader)
 {
-	/*cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
-	CImageMarker::getInstance()->setWinName(m_winName);	
+	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
+    cv::Rect2d rect(cv::Point(127, 135), cv::Point(148, 160));
+	cv::Ptr<cv::TrackerTLD> tracker = cv::TrackerTLD::createTracker();
+	tracker.get()->init(loader.getNextFrame(), rect);
+	std::cout << "tracker created" << std::endl;
 
-	cv::Mat frame;
+	
+	int frameCount = 0;
 	while(true)
 	{
-		if(false == CImageMarker::getInstance()->isMarkerActive())
-		{	
-			frame = loader.getNextFrame();
-			//m_container.perform(frame);
-			CImageMarker::getInstance()->setFrame( frame );
-			cv::imshow(m_winName, frame);
-		}
-		else
-		{
-			cv::imshow(m_winName, CImageMarker::getInstance()->getFrame() );
-		}
-
-		std::vector<cv::Mat> imgVec = CImageMarker::getInstance()->getImgVec();
+		cv::Mat frame = loader.getNextFrame();
+		m_container.perform(frame);
 		
+        if (0 == frameCount) {
+	        tracker.get()->update(frame, rect);
+	    }
 
-		if(imgVec.size() > 0)
-		{
-			cv::namedWindow("aaa", CV_WINDOW_AUTOSIZE);
-			cv::imshow("aaa",*imgVec.begin());		
-		}
+	    cv::rectangle(frame,
+           rect.tl(),
+           rect.br(),
+           cv::Scalar(255, 255, 255),
+           2, 8
+        );
 
-		if(cv::waitKey(20) == 27)
-		{
-			break;
-		}	
+		cv::imshow(m_winName, frame);
+		frameCount = (25 == frameCount) ? 0 : frameCount+1;
 	}
-	*/	
 }
 

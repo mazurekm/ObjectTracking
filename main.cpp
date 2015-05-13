@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 	CVideoLoader loader(argv[1]);
 
 	CTransformContainer container;
-	container.addTransform( std::shared_ptr<CImageTransform>(new RgbToGray () ) );
+	container.addTransform( std::shared_ptr<CImageTransform>(new MedianBlur () ) );
 
 
 	cv::namedWindow("bbb", CV_WINDOW_AUTOSIZE);

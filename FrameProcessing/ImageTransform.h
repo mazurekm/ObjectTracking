@@ -17,7 +17,7 @@ public:
 	void operator()(cv::Mat &frame)
 	{
 		cv::Mat oldFrame = frame.clone();
-		cv::cvtColor(oldFrame, frame, CV_RGB2HSV);
+		cv::cvtColor(oldFrame, frame, CV_BGR2HSV);
 	}	
 };
 
@@ -28,6 +28,16 @@ public:
 	{
 		cv::Mat oldFrame = frame.clone();
 		cv::cvtColor(oldFrame, frame, CV_RGB2GRAY);
+	}	
+};
+
+class MedianBlur : public CImageTransform
+{
+public:
+	void operator()(cv::Mat &frame)
+	{
+		cv::Mat oldFrame = frame.clone();
+		cv::medianBlur(oldFrame, frame, 3);
 	}	
 };
 
