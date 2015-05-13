@@ -3,7 +3,8 @@ cmake_minimum_required (VERSION 2.6)
 project(ObjectTracking)
 
 set(TEST_DIR ${PROJECT_BINARY_DIR}/Tests)
-set(ALG_TEST alg_test)
+set(TLD_TEST tld_test)
+set(FEATURE_TEST feature_test)
 
 option(CPP11 "CPP11 SUPPORT" ON)
 
@@ -27,4 +28,5 @@ target_link_libraries(${PROJECT_NAME} FrameProcessing)
 target_link_libraries(${PROJECT_NAME} Algorithms)
 
 enable_testing()
-add_test(${ALG_TEST} ${TEST_DIR}/${ALG_TEST})
+add_test(${TLD_TEST} ${TEST_DIR}/${TLD_TEST})
+add_test(${FEATURE_TEST} ${TEST_DIR}/${FEATURE_TEST})
