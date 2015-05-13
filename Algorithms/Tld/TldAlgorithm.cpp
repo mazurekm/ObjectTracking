@@ -1,10 +1,6 @@
 #include "TldAlgorithm.h"
-<<<<<<< HEAD
-#include <FrameProcessing/ImageMarker.h>
-=======
 #include "opencv2/tracking/tracker.hpp"
 #include <iostream>
->>>>>>> 403350bb09aa6ded0c9e9e4805ea48694b2970fa
 
 CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::string &winName) : CAbstractAlgorithm(container, winName) 
 {
@@ -39,6 +35,11 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 
 		cv::imshow(m_winName, frame);
 		frameCount = (25 == frameCount) ? 0 : frameCount+1;
+
+		if(cv::waitKey(30) == 27)
+		{
+			break;
+		}	
 	}
 }
 
