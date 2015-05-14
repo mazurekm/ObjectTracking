@@ -1,5 +1,6 @@
 #include "TldAlgorithm.h"
 #include "opencv2/tracking/tracker.hpp"
+#include <FrameProcessing/ImageMarker.h>
 #include <iostream>
 
 CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::string &winName) : CAbstractAlgorithm(container, winName) 
@@ -9,21 +10,29 @@ CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::st
 
 void CTldAlgorithm::perform(CVideoLoader &loader)
 {
-	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
-    cv::Rect2d rect(cv::Point(127, 135), cv::Point(148, 160));
+	//cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
+    cv::Point point = CImageMarker::getInstance().getImgVec().begin()->first;
+    cv::Rect2d rect(
+        point,
+        cv::Point(
+            point.x + CImageMarker::getInstance().getImgVec().begin()->second.cols,
+            point.y + CImageMarker::getInstance().getImgVec().begin()->second.rows
+        )
+    );
+
 	cv::Ptr<cv::TrackerTLD> tracker = cv::TrackerTLD::createTracker();
 	tracker.get()->init(loader.getNextFrame(), rect);
 	std::cout << "tracker created" << std::endl;
 
 	
-	int frameCount = 0;
+	int frameCount = 1;
 	while(true)
 	{
 		cv::Mat frame = loader.getNextFrame();
 		m_container.perform(frame);
 		
         if (0 == frameCount) {
-	        tracker.get()->update(frame, rect);
+	      tracker.get()->update(frame, rect);
 	    }
 
 	    cv::rectangle(frame,

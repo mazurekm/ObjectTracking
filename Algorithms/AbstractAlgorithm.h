@@ -1,3 +1,6 @@
+#ifndef ABSTRACT_ALGORITHM
+#define ABSTRACT_ALGORITHM
+
 #include<FrameProcessing/TransformContainer.h>
 #include<FrameProcessing/VideoLoader.h>
 #include<string>
@@ -16,3 +19,5 @@ protected:
 	CTransformContainer m_container;
 
 };
+
+#endif

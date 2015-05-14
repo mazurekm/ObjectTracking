@@ -36,7 +36,7 @@ CImageMarker::CImageMarker()
 }
 
 
-std::vector<cv::Mat> CImageMarker::getImgVec() const
+std::vector<std::pair<cv::Point, cv::Mat>> CImageMarker::getImgVec() const
 {
 	return m_imgVec;
 }
@@ -88,22 +88,22 @@ void CImageMarker::addObject(int x, int y, int px, int py)
 	if(x > px && y > py)
 	{
 		cv::Rect roi(cv::Point(px+2, py+2), cv::Point(x-2, y-2));
-		m_imgVec.push_back( m_objToAdd(roi) );	
+		m_imgVec.push_back( std::make_pair(cv::Point(px+2, py+2), m_objToAdd(roi)) );	
 	}
 	else if(x < px)
 	{
 		cv::Rect roi(cv::Point(x+2, py+2), cv::Point(px-2, y-2));
-		m_imgVec.push_back( m_objToAdd(roi) );	
+		m_imgVec.push_back( std::make_pair(cv::Point(x+2, py+2), m_objToAdd(roi)) );	
 	}
 	else if(y < py)
 	{
 		cv::Rect roi(cv::Point(px+2, y+2), cv::Point(x-2, py-2));
-		m_imgVec.push_back( m_objToAdd(roi) );	
+		m_imgVec.push_back( std::make_pair(cv::Point(px+2, y+2), m_objToAdd(roi)) );	
 	}
 	else
 	{
 		cv::Rect roi(cv::Point(x+2, y+2), cv::Point(px-2, py-2));
-		m_imgVec.push_back( m_objToAdd(roi) );	
+		m_imgVec.push_back( std::make_pair(cv::Point(x+2, y+2), m_objToAdd(roi)) );	
 	}
 }
 

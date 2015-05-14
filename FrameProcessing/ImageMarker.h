@@ -8,6 +8,7 @@
 #include<iostream>
 #include<cmath>
 #include<memory>
+#include <utility>
 
 
 //void onMouse(int event, int x, int y, int flags, void *param);
@@ -22,7 +23,7 @@ public:
 		return marker;
 	}
 
-	std::vector<cv::Mat> getImgVec() const;
+	std::vector<std::pair<cv::Point, cv::Mat>> getImgVec() const;
 
 	void setFrame(const cv::Mat &img);
 	
@@ -37,7 +38,7 @@ public:
 
 private:
 	CImageMarker(const std::string &name);
-	std::vector<cv::Mat> m_imgVec;
+	std::vector<std::pair<cv::Point, cv::Mat>> m_imgVec;
 	std::string m_winName;
 	bool m_isMarking = false;
 	cv::Mat m_objToAdd;
