@@ -12,6 +12,10 @@ public:
 	{
 	}
 
+	CAbstractAlgorithm(const std::string &winName) : m_winName(winName)
+	{
+	}
+
 	virtual void perform(CVideoLoader &loader) = 0;
 
 protected:

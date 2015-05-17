@@ -32,3 +32,6 @@ build/
 
 #SublimeLinter config file
 .sublimelinterrc
+
+#vim
+*.swp

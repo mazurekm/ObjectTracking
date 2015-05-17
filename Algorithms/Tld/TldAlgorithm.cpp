@@ -45,7 +45,7 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 		cv::imshow(m_winName, frame);
 		frameCount = (25 == frameCount) ? 0 : frameCount+1;
 
-		if(cv::waitKey(30) == 27)
+		if(cv::waitKey(10) == 27)
 		{
 			break;
 		}	

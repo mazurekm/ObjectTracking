@@ -4,8 +4,22 @@
 #include <Algorithms/Feature/FeatureDetect.h>
 #include <FrameProcessing/TransformContainer.h>
 #include <FrameProcessing/ImageTransform.h>
+#include <string>
+#include <sstream>
+#include <boost/filesystem.hpp>
 
-BOOST_AUTO_TEST_CASE(PassTest)
+BOOST_AUTO_TEST_CASE(first_test)
 {
-	BOOST_CHECK(1);
+	std::stringstream sst;
+	sst << boost::filesystem::current_path();
+
+	std::string path = sst.str();
+	path.erase(path.begin());
+	path.erase(path.end()-1);
+
+	path = "Tests/bin/sample1.avi";
+	CVideoLoader loader(path);	
+
+	CFeatureDetect alg("Feature");
+	alg.perform(loader);
 }

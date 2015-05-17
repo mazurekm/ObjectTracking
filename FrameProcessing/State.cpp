@@ -20,7 +20,6 @@ std::shared_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorit
     while(0 == imgVec.size()) {
         if(false == CImageMarker::getInstance().isMarkerActive()) {
             frame = loader.getNextFrame();
-            //m_container.perform(frame);
             CImageMarker::getInstance().setFrame( frame );
             cv::imshow("bbb", frame);
         }
@@ -29,11 +28,6 @@ std::shared_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorit
         }
 
         imgVec = CImageMarker::getInstance().getImgVec(); 
-
-        /*if(imgVec.size() > 0) {
-            cv::namedWindow("aaa", CV_WINDOW_AUTOSIZE);
-            cv::imshow("aaa",*imgVec.begin());      
-        }*/
 
         if(cv::waitKey(20) == 27) {
             retPtr = nullptr;

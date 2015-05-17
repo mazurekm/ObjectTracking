@@ -14,31 +14,49 @@ public:
 class RgbToHsv : public CImageTransform
 {
 public:
-	void operator()(cv::Mat &frame)
-	{
-		cv::Mat oldFrame = frame.clone();
-		cv::cvtColor(oldFrame, frame, CV_BGR2HSV);
-	}	
+	void operator()(cv::Mat &frame);
 };
 
 class RgbToGray : public CImageTransform
 {
 public:
-	void operator()(cv::Mat &frame)
-	{
-		cv::Mat oldFrame = frame.clone();
-		cv::cvtColor(oldFrame, frame, CV_RGB2GRAY);
-	}	
+	void operator()(cv::Mat &frame);
 };
 
 class MedianBlur : public CImageTransform
 {
 public:
-	void operator()(cv::Mat &frame)
-	{
-		cv::Mat oldFrame = frame.clone();
-		cv::medianBlur(oldFrame, frame, 3);
-	}	
+	void operator()(cv::Mat &frame);
+};
+
+class Dilate : public CImageTransform
+{
+public:
+	Dilate(int size, int type);
+	void operator()(cv::Mat &frame);
+private:
+	cv::Mat m_structEl;
+};
+
+class Erode : public CImageTransform
+{
+public:
+	Erode(int size, int type);
+	void operator()(cv::Mat &frame);
+private:
+	cv::Mat m_structEl;
+};
+
+class GaussianBlur : public CImageTransform
+{
+public:
+	GaussianBlur(int width, int height, double sigmaX, double sigmaY);
+   	void operator()(cv::Mat &frame);	
+private:
+	int m_width;
+	int m_height;
+	double m_sigmaX;
+	double m_sigmaY;
 };
 
 
