@@ -10,7 +10,8 @@ CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::st
 
 void CTldAlgorithm::perform(CVideoLoader &loader)
 {
-	//cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
+	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
+    CImageMarker::getInstance().setWinName(m_winName);
     cv::Point point = CImageMarker::getInstance().getImgVec().begin()->first;
     cv::Rect2d rect(
         point,

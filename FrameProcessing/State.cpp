@@ -15,16 +15,18 @@ MarkState::~MarkState() {
 
 std::shared_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm) {
     cv::Mat frame;
+    cv::namedWindow(algorithm.m_winName, CV_WINDOW_AUTOSIZE);
+    CImageMarker::getInstance().setWinName(algorithm.m_winName);
     std::shared_ptr<State> retPtr( new TrackState() );
     std::vector<std::pair<cv::Point, cv::Mat>> imgVec = CImageMarker::getInstance().getImgVec();
     while(0 == imgVec.size()) {
         if(false == CImageMarker::getInstance().isMarkerActive()) {
             frame = loader.getNextFrame();
             CImageMarker::getInstance().setFrame( frame );
-            cv::imshow("bbb", frame);
+            cv::imshow(algorithm.m_winName, frame);
         }
         else {
-            cv::imshow("bbb", CImageMarker::getInstance().getFrame() );
+            cv::imshow(algorithm.m_winName, CImageMarker::getInstance().getFrame() );
         }
 
         imgVec = CImageMarker::getInstance().getImgVec(); 

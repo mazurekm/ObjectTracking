@@ -8,6 +8,7 @@
 class CAbstractAlgorithm
 {
 public:
+    std::string m_winName;
 	CAbstractAlgorithm(const CTransformContainer &container, const std::string &winName) : m_winName(winName), m_container(container)
 	{
 	}
@@ -19,7 +20,6 @@ public:
 	virtual void perform(CVideoLoader &loader) = 0;
 
 protected:
-	std::string m_winName;
 	CTransformContainer m_container;
 
 };
