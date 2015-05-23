@@ -2,9 +2,6 @@
 #include <FrameProcessing/PatternController.h>
 #include <algorithm>
 
-#include <opencv2/video/tracking.hpp>
-#include <opencv2/videoio.hpp>
-
 
 CKalmanFilter::CKalmanFilter(const std::string &winName) : CAbstractAlgorithm(winName)
 {
@@ -20,7 +17,6 @@ CKalmanFilter::CKalmanFilter(const CTransformContainer &container, const std::st
 CKalmanFilter::~CKalmanFilter()
 {
 }
-
 
 cv::MatND CKalmanFilter::calcBackProj(cv::Mat &img, int bins)
 {
@@ -86,7 +82,8 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 
 	cv::TermCriteria criteria ( cv::TermCriteria::EPS | cv::TermCriteria::COUNT, 10, 1 );	
 	cv::Mat frame;
-	
+	cv::Mat_<float> measure(2,1);	
+
 	while(true)
 	{
 		if(false == CPatternController::getInstance().isMarkerActive()) 
@@ -104,13 +101,27 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
 			{
 				cv::Rect window = templateMatching(iter->second, frame, 0);
+				
+				if(false == m_kalmanFilter.isInitialized() )
+				{
+					m_kalmanFilter.init(window.x, window.y, -1, -1);	
+				}
+
+				m_kalmanFilter.predict();
+
 				cv::MatND back = calcBackProj(frame, 25);	
-				cv::RotatedRect trackBox = cv::CamShift(back, window, criteria);
-				cv::rectangle(frame, trackBox.boundingRect(), cv::Scalar(255,0,0),2,8);				
+				cv::Rect trackBox =  cv::CamShift(back, window, criteria).boundingRect();
+				measure(0) = trackBox.x;
+				measure(1) = trackBox.y;	
+
+				cv::Mat estimate = m_kalmanFilter.correct(measure);
+				trackBox.x = estimate.at<float>(0);
+				trackBox.y = estimate.at<float>(1);
+				cv::rectangle(frame, trackBox, cv::Scalar(255,0,0),2,8);				
 			}
 		
 			cv::imshow(m_winName, frame);
-
+				
 		}
 		else
 		{
@@ -121,4 +132,45 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+COpenCVimpl::COpenCVimpl(int dynamParams, int measureParams, int controlParams, int type) :
+		m_filter(dynamParams, measureParams, controlParams, type)
+{
+				
+}
+
+
+void COpenCVimpl::init(int x1Pos, int y1Pos, int, int)
+{
+	//noise
+	cv::setIdentity(m_filter.processNoiseCov, cv::Scalar::all(1e-4));
+	cv::setIdentity(m_filter.measurementNoiseCov, cv::Scalar::all(10));
+	cv::setIdentity(m_filter.errorCovPost, cv::Scalar::all(.1));
+
+	//transition
+	m_filter.transitionMatrix = (cv::Mat_<float>(4, 4) << 1,0,1,0,   0,1,0,1,  0,0,1,0,  0,0,0,1);
+	m_filter.statePre.at<float>(0) = x1Pos;
+	m_filter.statePre.at<float>(1) = y1Pos;
+	m_filter.statePre.at<float>(2) = 0;
+	m_filter.statePre.at<float>(3) = 0;
+	
+	//measure
+	cv::setIdentity(m_filter.measurementMatrix);
+	
+}
+
+cv::Mat COpenCVimpl::correct(const cv::Mat &measurement)
+{
+	return m_filter.correct(measurement);	
+}
+
+cv::Mat COpenCVimpl::predict()
+{
+	return m_filter.predict();
+}
+
+
 
