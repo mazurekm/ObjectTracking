@@ -41,6 +41,12 @@ void CFeatureDetect::perform(CVideoLoader &loader)
 		if(false == CPatternController::getInstance().isMarkerActive()) 
 		{
 			frame = loader.getNextFrame();
+
+			if(true == frame.empty())
+			{
+				break;
+			}
+
             CPatternController::getInstance().setFrame( frame );
 
 			auto imgVec = CPatternController::getInstance().getImgVec();
@@ -90,10 +96,8 @@ void CFeatureDetect::perform(CVideoLoader &loader)
             cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
 		}	
 
-		if(cv::waitKey(20) == 1048603)
-		{
-			break;
-		}	
+		if(true == interval(20)) break;
+
 	}
 }
 

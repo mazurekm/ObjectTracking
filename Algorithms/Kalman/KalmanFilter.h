@@ -3,8 +3,16 @@
 
 #include "../AbstractAlgorithm.h"
 
-class CKalmanFilter
+class CKalmanFilter : public CAbstractAlgorithm
 {
+public:
+	CKalmanFilter(const std::string &winName );
+	CKalmanFilter(const CTransformContainer &container, const std::string &winName);
+	~CKalmanFilter();
+
+	void perform(CVideoLoader &loader);
+
+
 };
 
 

@@ -18,6 +18,17 @@ public:
 	}
 
 	virtual void perform(CVideoLoader &loader) = 0;
+	
+	bool interval(int miliSec)
+	{
+		int key = cv::waitKey(miliSec);
+		if(1048603 == key || 27 == key)
+		{
+			return true;
+		}		
+
+		return false;
+	}
 
 protected:
 	CTransformContainer m_container;

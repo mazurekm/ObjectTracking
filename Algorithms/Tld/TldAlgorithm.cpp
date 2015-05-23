@@ -22,34 +22,40 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
     );
 
 	cv::Ptr<cv::TrackerTLD> tracker = cv::TrackerTLD::createTracker();
-	tracker.get()->init(loader.getNextFrame(), rect);
+	cv::Mat frame = loader.getNextFrame();
+	m_container.perform(frame);
+	tracker.get()->init(frame, rect);
 	std::cout << "tracker created" << std::endl;
 
 	
 	int frameCount = 1;
 	while(true)
 	{
-		cv::Mat frame = loader.getNextFrame();
-		m_container.perform(frame);
+		frame = loader.getNextFrame();
+
+		if(true == frame.empty())
+		{
+			break;
+		}
+
+		cv::Mat frameForUpdate = frame.clone();
+		m_container.perform(frameForUpdate);
 		
         if (0 == frameCount) {
-	      tracker.get()->update(frame, rect);
+	      tracker.get()->update(frameForUpdate, rect);
 	    }
 
 	    cv::rectangle(frame,
            rect.tl(),
            rect.br(),
-           cv::Scalar(255, 255, 255),
+           cv::Scalar(255, 0, 0),
            2, 8
         );
 
 		cv::imshow(m_winName, frame);
 		frameCount = (25 == frameCount) ? 0 : frameCount+1;
 
-		if(cv::waitKey(10) == 27)
-		{
-			break;
-		}	
+		if(true == interval(20)) break;
 	}
 }
 
