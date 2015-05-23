@@ -6,7 +6,7 @@
 #include <opencv2/xfeatures2d.hpp>
 
 
-#include <FrameProcessing/ImageMarker.h>
+#include <FrameProcessing/PatternController.h>
 
 #include<algorithm>
 #include<vector>
@@ -32,18 +32,18 @@ void CFeatureDetect::perform(CVideoLoader &loader)
 	cv::namedWindow(m_winName, cv::WINDOW_AUTOSIZE );
 
 	Ptr<SURF> detector = SURF::create( minHessian );
-	CImageMarker::getInstance().setWinName(m_winName);
+	CPatternController::getInstance().setWinName(m_winName);
 
 
 	while(true)
 	{
 		
-		if(false == CImageMarker::getInstance().isMarkerActive()) 
+		if(false == CPatternController::getInstance().isMarkerActive()) 
 		{
 			frame = loader.getNextFrame();
-            CImageMarker::getInstance().setFrame( frame );
+            CPatternController::getInstance().setFrame( frame );
 
-			auto imgVec = CImageMarker::getInstance().getImgVec();
+			auto imgVec = CPatternController::getInstance().getImgVec();
 		
 			
 			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
@@ -87,7 +87,7 @@ void CFeatureDetect::perform(CVideoLoader &loader)
         }
 		else
 		{
-            cv::imshow(m_winName, CImageMarker::getInstance().getFrame() );
+            cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
 		}	
 
 		if(cv::waitKey(20) == 1048603)

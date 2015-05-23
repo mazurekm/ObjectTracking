@@ -1,6 +1,6 @@
 #include "TldAlgorithm.h"
 #include "opencv2/tracking/tracker.hpp"
-#include <FrameProcessing/ImageMarker.h>
+#include <FrameProcessing/PatternController.h>
 #include <iostream>
 
 CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::string &winName) : CAbstractAlgorithm(container, winName) 
@@ -11,13 +11,13 @@ CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::st
 void CTldAlgorithm::perform(CVideoLoader &loader)
 {
 	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
-    CImageMarker::getInstance().setWinName(m_winName);
-    cv::Point point = CImageMarker::getInstance().getImgVec().begin()->first;
+    CPatternController::getInstance().setWinName(m_winName);
+    cv::Point point = CPatternController::getInstance().getImgVec().begin()->first;
     cv::Rect2d rect(
         point,
         cv::Point(
-            point.x + CImageMarker::getInstance().getImgVec().begin()->second.cols,
-            point.y + CImageMarker::getInstance().getImgVec().begin()->second.rows
+            point.x + CPatternController::getInstance().getImgVec().begin()->second.cols,
+            point.y + CPatternController::getInstance().getImgVec().begin()->second.rows
         )
     );
 

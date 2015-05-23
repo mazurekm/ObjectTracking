@@ -1,4 +1,4 @@
-#include "ImageMarker.h"
+#include "PatternController.h"
 
 
 void onMouse(int event, int x, int y, int flags, void *param)
@@ -11,43 +11,43 @@ void onMouse(int event, int x, int y, int flags, void *param)
 		px = x;
 		py = y;
 		isClicked = true;
-		CImageMarker::getInstance().markerActivity(true);	
+		CPatternController::getInstance().markerActivity(true);	
 	}
 	else if(event == cv::EVENT_MOUSEMOVE)
 	{
 		if(true == isClicked)
 		{
-			CImageMarker::getInstance().drawArea(x, y, px, py);					
+			CPatternController::getInstance().drawArea(x, y, px, py);					
 		}
 	}
 	else if(event == cv::EVENT_LBUTTONUP )
 	{
-		CImageMarker::getInstance().addObject(x, y, px, py);		
+		CPatternController::getInstance().addObject(x, y, px, py);		
 
-		CImageMarker::getInstance().markerActivity(false);
+		CPatternController::getInstance().markerActivity(false);
 		isClicked = false;	
 	}
 }
 
 
-CImageMarker::CImageMarker()
+CPatternController::CPatternController()
 {
 
 }
 
 
-std::vector<std::pair<cv::Point, cv::Mat>> CImageMarker::getImgVec() const
+std::vector<std::pair<cv::Point, cv::Mat>> CPatternController::getImgVec() const
 {
 	return m_imgVec;
 }
 
-void CImageMarker::setFrame(const cv::Mat &img)
+void CPatternController::setFrame(const cv::Mat &img)
 {
 	m_objToAdd = img.clone();
 	m_original = img.clone();
 }
 	
-void CImageMarker::drawArea(int x, int y, int px, int py)
+void CPatternController::drawArea(int x, int y, int px, int py)
 {
 	m_objToAdd = m_original.clone();
 	if(x == px || y == py)
@@ -73,12 +73,12 @@ void CImageMarker::drawArea(int x, int y, int px, int py)
 	}
 }
 
-cv::Mat CImageMarker::getFrame() const
+cv::Mat CPatternController::getFrame() const
 {
 	return m_objToAdd;
 }
 
-void CImageMarker::addObject(int x, int y, int px, int py)
+void CPatternController::addObject(int x, int y, int px, int py)
 {
 	if(x == px || y == py)
 	{
@@ -107,17 +107,17 @@ void CImageMarker::addObject(int x, int y, int px, int py)
 	}
 }
 
-void CImageMarker::markerActivity(bool flag)
+void CPatternController::markerActivity(bool flag)
 {
 	m_isMarking = flag;	
 }
 
-bool CImageMarker::isMarkerActive() const
+bool CPatternController::isMarkerActive() const
 {
 	return m_isMarking;
 }
 
-void CImageMarker::setWinName(const std::string &str)
+void CPatternController::setWinName(const std::string &str)
 {
 	m_winName = str;	
 	cv::setMouseCallback(m_winName.c_str(), onMouse, 0 );

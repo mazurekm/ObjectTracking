@@ -13,13 +13,13 @@
 
 //void onMouse(int event, int x, int y, int flags, void *param);
 
-class CImageMarker
+class CPatternController
 {
 public:
 	
-	static CImageMarker& getInstance()
+	static CPatternController& getInstance()
 	{
-		static CImageMarker marker;
+		static CPatternController marker;
 		return marker;
 	}
 
@@ -37,17 +37,17 @@ public:
 	void setWinName(const std::string &str);
 
 private:
-	CImageMarker(const std::string &name);
+	CPatternController(const std::string &name);
 	std::vector<std::pair<cv::Point, cv::Mat>> m_imgVec;
 	std::string m_winName;
 	bool m_isMarking = false;
 	cv::Mat m_objToAdd;
 	cv::Mat m_original;
 
-	CImageMarker();
-	CImageMarker(const CImageMarker&) = delete;
-	CImageMarker(CImageMarker &&) = delete;
-	CImageMarker & operator=(CImageMarker &) = delete;
+	CPatternController();
+	CPatternController(const CPatternController&) = delete;
+	CPatternController(CPatternController &&) = delete;
+	CPatternController & operator=(CPatternController &) = delete;
 };
 
 #endif 

@@ -1,6 +1,6 @@
 #include <FrameProcessing/VideoLoader.h>
 #include <FrameProcessing/TransformContainer.h>
-#include <FrameProcessing/ImageMarker.h>
+#include <FrameProcessing/PatternController.h>
 #include <FrameProcessing/State.h>
 #include <Algorithms/Tld/TldAlgorithm.h>
 #include <cassert>
@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 	container.addTransform( std::shared_ptr<CImageTransform>(new MedianBlur () ) );
 
 	cv::namedWindow("bbb", CV_WINDOW_AUTOSIZE);
-	CImageMarker::getInstance().setWinName("bbb");	
+	CPatternController::getInstance().setWinName("bbb");	
 	CTldAlgorithm tldAlgorithm(container, "tld");
 
 	std::shared_ptr<State> state( new MarkState() );
