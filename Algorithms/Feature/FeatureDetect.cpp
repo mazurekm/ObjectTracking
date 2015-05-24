@@ -12,9 +12,6 @@
 #include<vector>
 #include<functional>
 
-using namespace cv;
-using namespace cv::xfeatures2d;
-
 CFeatureDetect::CFeatureDetect(const CTransformContainer &container, const std::string &winName) : CAbstractAlgorithm(container, winName)
 {
 
@@ -22,19 +19,58 @@ CFeatureDetect::CFeatureDetect(const CTransformContainer &container, const std::
 
 CFeatureDetect::CFeatureDetect(const std::string &winName) : CAbstractAlgorithm(winName)
 {
+	m_container.addTransform(std::shared_ptr<CImageTransform>(new RgbToGray()));
 }
+
+
+
+void CFeatureDetect::featureDetect(const cv::Mat &source, const cv::Mat &templ, cv::Mat &frame)
+{
+	int minHessian = 400;
+	cv::Ptr<SURF> detector = SURF::create( minHessian );
+
+	std::vector<cv::KeyPoint> keypointsObject, keypointsScene;
+	cv::Mat descriptorsObject, descriptorsScene;
+
+	detector->detectAndCompute( templ, cv::noArray(), keypointsObject, descriptorsObject );
+	detector->detectAndCompute( source, cv::noArray(), keypointsScene, descriptorsScene ); 
+
+	cv::FlannBasedMatcher matcher;
+	std::vector< cv::DMatch > matches;
+	matcher.match( descriptorsObject, descriptorsScene, matches );
+
+	auto predicate = [](cv::DMatch i, cv::DMatch j) { return i.distance < j.distance;}; 
+
+	auto minElIter = std::min_element(matches.begin(), matches.end(), predicate);
+
+	double min = 100;	
+	if(matches.end() != minElIter)
+	{
+		min = minElIter->distance;
+	}
+
+	std::vector< cv::DMatch > goodMatches;
+			
+	auto cond =  [&min](cv::DMatch el) {return el.distance <= std::max(2*min, 0.02);};
+	std::copy_if(matches.begin(), matches.end(), std::back_inserter(goodMatches), cond);
+
+	cv::Mat imgMatches;
+	if(false == goodMatches.empty())
+	{
+		drawMatches( templ, keypointsObject, frame, keypointsScene,
+					goodMatches, imgMatches, cv::Scalar::all(-1), cv::Scalar::all(-1),
+					std::vector<char>(), 2 );
+		frame = imgMatches.clone();	
+	}
+}
+
 
 void CFeatureDetect::perform(CVideoLoader &loader)
 {
-	int minHessian = 400;
 	cv:: Mat frame;
-
 	cv::namedWindow(m_winName, cv::WINDOW_AUTOSIZE );
-
-	Ptr<SURF> detector = SURF::create( minHessian );
 	CPatternController::getInstance().setWinName(m_winName);
-
-
+	
 	while(true)
 	{
 		
@@ -50,43 +86,15 @@ void CFeatureDetect::perform(CVideoLoader &loader)
             CPatternController::getInstance().setFrame( frame );
 
 			auto imgVec = CPatternController::getInstance().getImgVec();
-		
-			
+	
+			cv::Mat source = frame.clone(); 
+			m_container.perform(source);
+
 			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
 			{
-				std::vector<cv::KeyPoint> keypoints_object, keypoints_scene;
-				cv::Mat descriptors_object, descriptors_scene;
-			
-				detector->detectAndCompute( iter->second, noArray(), keypoints_object, descriptors_object );
-  				detector->detectAndCompute( frame, noArray(), keypoints_scene, descriptors_scene ); 
-				
-				cv::FlannBasedMatcher matcher;
-				std::vector< cv::DMatch > matches;
-				matcher.match( descriptors_object, descriptors_scene, matches );
-
-				auto predicate = [](DMatch i, DMatch j) { return i.distance < j.distance;}; 
-
-				auto minElIter = std::min_element(matches.begin(), matches.end(), predicate);
-			
-				double min = 100;	
-				if(matches.end() != minElIter)
-				{
-					min = minElIter->distance;
-				}
-			
-				std::vector< DMatch > good_matches;
-			
-				auto cond =  [&min](DMatch el) {return el.distance <= std::max(2*min, 0.02);};
-				std::copy_if(matches.begin(), matches.end(), std::back_inserter(good_matches), cond);
-
-				Mat img_matches;
-				if(false == good_matches.empty())
-				{
-		  			drawMatches( iter->second, keypoints_object, frame, keypoints_scene,
-					                 good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
-							                  std::vector<char>(), 2 );	
-					frame = img_matches.clone();
-				}
+				cv::Mat templ = iter->second.clone();
+				m_container.perform(templ);
+				featureDetect(source, templ, frame);
 			}	
 
 			cv::imshow(m_winName, frame);

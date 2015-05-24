@@ -10,6 +10,9 @@ public:
 	CFeatureDetect(const std::string &winName);
 	
 	void perform(CVideoLoader &loader);
+
+private:
+	void featureDetect(const cv::Mat &source, const cv::Mat &templ, cv::Mat &frame);
 };
 
 

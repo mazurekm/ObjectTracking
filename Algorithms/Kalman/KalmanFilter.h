@@ -5,7 +5,7 @@
 #include <opencv2/videoio.hpp>
 
 #include "../AbstractAlgorithm.h"
-
+#include<utility>
 
 class COpenCVimpl
 {
@@ -38,7 +38,7 @@ public:
 private:
 	cv::MatND calcBackProj(cv::Mat &img, int bins);
 	cv::Rect templateMatching(cv::Mat& templ, cv::Mat &source, int method);
-	COpenCVimpl m_kalmanFilter;
+	std::pair<COpenCVimpl, COpenCVimpl> m_filterPair = std::make_pair(COpenCVimpl(), COpenCVimpl());
 };
 
 

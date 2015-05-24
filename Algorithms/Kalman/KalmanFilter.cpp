@@ -82,7 +82,7 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 
 	cv::TermCriteria criteria ( cv::TermCriteria::EPS | cv::TermCriteria::COUNT, 10, 1 );	
 	cv::Mat frame;
-	cv::Mat_<float> measure(2,1);	
+	cv::Mat_<float> measureFirst(2,1), measureSecond(2,1);	
 
 	while(true)
 	{
@@ -102,21 +102,31 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 			{
 				cv::Rect window = templateMatching(iter->second, frame, 0);
 				
-				if(false == m_kalmanFilter.isInitialized() )
+				if(false == m_filterPair.first.isInitialized() || false == m_filterPair.second.isInitialized() )
 				{
-					m_kalmanFilter.init(window.x, window.y, -1, -1);	
+					m_filterPair.first.init(window.x, window.y, -1, -1);
+					m_filterPair.second.init(window.x+window.width, window.y+window.height, -1, -1);	
 				}
 
-				m_kalmanFilter.predict();
+				m_filterPair.first.predict();
+				m_filterPair.second.predict();
 
 				cv::MatND back = calcBackProj(frame, 25);	
 				cv::Rect trackBox =  cv::CamShift(back, window, criteria).boundingRect();
-				measure(0) = trackBox.x;
-				measure(1) = trackBox.y;	
+				measureFirst(0) = trackBox.x;
+				measureFirst(1) = trackBox.y;	
 
-				cv::Mat estimate = m_kalmanFilter.correct(measure);
-				trackBox.x = estimate.at<float>(0);
-				trackBox.y = estimate.at<float>(1);
+				measureSecond(0) = trackBox.x + trackBox.width;
+				measureSecond(1) = trackBox.y + trackBox.height;
+
+				cv::Mat firstPoint = m_filterPair.first.correct(measureFirst);
+				cv::Mat secondPoint = m_filterPair.second.correct(measureSecond); 
+				
+				trackBox.x = firstPoint.at<float>(0);
+				trackBox.y = firstPoint.at<float>(1);
+				trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
+				trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
+
 				cv::rectangle(frame, trackBox, cv::Scalar(255,0,0),2,8);				
 			}
 		
