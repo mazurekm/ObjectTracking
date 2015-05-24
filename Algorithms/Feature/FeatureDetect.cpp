@@ -5,7 +5,6 @@
 #include <opencv2/calib3d.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
-
 #include <FrameProcessing/PatternController.h>
 
 #include<algorithm>
@@ -27,7 +26,7 @@ CFeatureDetect::CFeatureDetect(const std::string &winName) : CAbstractAlgorithm(
 void CFeatureDetect::featureDetect(const cv::Mat &source, const cv::Mat &templ, cv::Mat &frame)
 {
 	int minHessian = 400;
-	cv::Ptr<SURF> detector = SURF::create( minHessian );
+	cv::Ptr<cv::xfeatures2d::SURF> detector = cv::xfeatures2d::SURF::create( minHessian );
 
 	std::vector<cv::KeyPoint> keypointsObject, keypointsScene;
 	cv::Mat descriptorsObject, descriptorsScene;
