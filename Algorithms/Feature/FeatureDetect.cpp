@@ -6,6 +6,7 @@
 #include <opencv2/xfeatures2d.hpp>
 
 #include <FrameProcessing/PatternController.h>
+#include <Algorithms/Utils/NNMatcher.h>
 
 #include<algorithm>
 #include<vector>
@@ -22,50 +23,9 @@ CFeatureDetect::CFeatureDetect(const std::string &winName) : CAbstractAlgorithm(
 }
 
 
-
-void CFeatureDetect::featureDetect(const cv::Mat &source, const cv::Mat &templ, cv::Mat &frame)
-{
-	int minHessian = 400;
-	cv::Ptr<cv::xfeatures2d::SURF> detector = cv::xfeatures2d::SURF::create( minHessian );
-
-	std::vector<cv::KeyPoint> keypointsObject, keypointsScene;
-	cv::Mat descriptorsObject, descriptorsScene;
-
-	detector->detectAndCompute( templ, cv::noArray(), keypointsObject, descriptorsObject );
-	detector->detectAndCompute( source, cv::noArray(), keypointsScene, descriptorsScene ); 
-
-	cv::FlannBasedMatcher matcher;
-	std::vector< cv::DMatch > matches;
-	matcher.match( descriptorsObject, descriptorsScene, matches );
-
-	auto predicate = [](cv::DMatch i, cv::DMatch j) { return i.distance < j.distance;}; 
-
-	auto minElIter = std::min_element(matches.begin(), matches.end(), predicate);
-
-	double min = 100;	
-	if(matches.end() != minElIter)
-	{
-		min = minElIter->distance;
-	}
-
-	std::vector< cv::DMatch > goodMatches;
-			
-	auto cond =  [&min](cv::DMatch el) {return el.distance <= std::max(2*min, 0.02);};
-	std::copy_if(matches.begin(), matches.end(), std::back_inserter(goodMatches), cond);
-
-	cv::Mat imgMatches;
-	if(false == goodMatches.empty())
-	{
-		drawMatches( templ, keypointsObject, frame, keypointsScene,
-					goodMatches, imgMatches, cv::Scalar::all(-1), cv::Scalar::all(-1),
-					std::vector<char>(), 2 );
-		frame = imgMatches.clone();	
-	}
-}
-
-
 void CFeatureDetect::perform(CVideoLoader &loader)
 {
+	CNNMatcher matcher;
 	cv:: Mat frame;
 	cv::namedWindow(m_winName, cv::WINDOW_AUTOSIZE );
 	CPatternController::getInstance().setWinName(m_winName);
@@ -86,14 +46,19 @@ void CFeatureDetect::perform(CVideoLoader &loader)
 
 			auto imgVec = CPatternController::getInstance().getImgVec();
 	
-			cv::Mat source = frame.clone(); 
+			cv::Mat source = frame.clone();
 			m_container.perform(source);
 
 			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
 			{
 				cv::Mat templ = iter->second.clone();
 				m_container.perform(templ);
-				featureDetect(source, templ, frame);
+				auto points = matcher.getMatchedPoints(source, templ);
+				for(auto pt = points.begin(); pt != points.end(); ++pt)
+				{
+					cv::circle(frame, *pt, 7, cv::Scalar(255,0,0), -1); 
+				}
+
 			}	
 
 			cv::imshow(m_winName, frame);

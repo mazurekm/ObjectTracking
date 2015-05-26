@@ -15,6 +15,7 @@ target_link_libraries (${OPTFLOW_TEST}
 		${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 
 
+
 target_link_libraries(${OPTFLOW_TEST} OptFlow)
 target_link_libraries(${OPTFLOW_TEST} FrameProcessing)
 target_link_libraries(${OPTFLOW_TEST} OpenCV)

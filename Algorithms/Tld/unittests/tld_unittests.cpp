@@ -16,11 +16,8 @@ BOOST_AUTO_TEST_CASE(PassTest)
     std::string path = "Tests/bin/sample1.avi";
 
     CVideoLoader loader(path);
-
-    std::shared_ptr<State> state( new MarkState() );
-    while (nullptr != state) {
-        state = state->handle(loader, tld);
-    }
+	CTldAlgorithm alg(container,"tld");
+	alg.perform(loader);
 
 	BOOST_CHECK(1);
 }

@@ -10,7 +10,7 @@ void RgbToHsv::operator()(cv::Mat &frame)
 void RgbToGray::operator()(cv::Mat &frame)
 {
 	cv::Mat oldFrame = frame.clone();
-	cv::cvtColor(oldFrame, frame, CV_RGB2GRAY);
+	cv::cvtColor(oldFrame, frame, CV_BGR2GRAY);
 }
 
 void MedianBlur::operator()(cv::Mat &frame)

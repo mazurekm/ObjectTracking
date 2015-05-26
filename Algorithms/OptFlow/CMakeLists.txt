@@ -8,5 +8,8 @@ SET(SOURCE OpticalFlow.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCE})
 
+
+target_link_libraries(${PROJECT_NAME} Utils)
+
 add_subdirectory(unittests)
 
