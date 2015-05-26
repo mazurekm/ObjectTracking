@@ -60,7 +60,8 @@ void COpticalFlow::perform(CVideoLoader &loader)
 					isInitialized = true;
 					cv::Mat src = iter->second.clone();
 					m_container.perform(src);
-					fNext = matcher.getMatchedPoints(nextImg, iter->second);
+					fNext = matcher.getMatchedPoints(frame, iter->second);
+
 				}
 				else
 				{
@@ -69,24 +70,13 @@ void COpticalFlow::perform(CVideoLoader &loader)
 					cv::Mat err;
 					cv::calcOpticalFlowPyrLK(prevImg, nextImg, fPrev, fNext, found, err);	
 				}
-			}
 			
-			auto pointComp1 = [](const cv::Point2f &p1, const cv::Point2f &p2) {return p1.x < p2.x;};
-			auto pointComp2 = [](const cv::Point2f &p1, const cv::Point2f &p2) {return p1.y < p2.y;};
-
-			auto maxX = std::max_element(fNext.begin(), fNext.end(), pointComp1);
-			auto maxY = std::max_element(fNext.begin(), fNext.end(), pointComp2);	
 			
-			auto minX = std::min_element(fNext.begin(), fNext.end(), pointComp1);
-			auto minY = std::min_element(fNext.begin(), fNext.end(), pointComp2);	
-			
-			if(false == fNext.empty())
-			{
-				for(auto pt = fNext.begin(); pt != fNext.end(); ++pt)
+				if(false == fNext.empty())
 				{
-					cv::circle(frame, cv::Point(pt->x, pt->y), 5, cv::Scalar(255,0,0), CV_FILLED, 8, 0);
+					cv::Rect rect = matcher.getRectangle(fNext, iter->second.cols, iter->second.rows);
+					cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
 				}
-				cv::rectangle(frame, cv::Point2f(minX->x, minY->y), cv::Point2f(maxX->x, maxY->y), cv::Scalar(255,0,0),2,8);		
 			}
 
 			cv::imshow(m_winName, frame);

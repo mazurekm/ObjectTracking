@@ -13,7 +13,7 @@ public:
 	}
 
 	std::vector<cv::Point2f> getMatchedPoints(const cv::Mat &source, const cv::Mat &templ);
-	cv::Rect getRectangle(const std::vector<cv::Point2f> &points);	
+	cv::Rect getRectangle(const std::vector<cv::Point2f> &points, int width, int height);	
 	
 private:
 	int m_minHessian;

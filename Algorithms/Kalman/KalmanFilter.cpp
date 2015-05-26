@@ -1,7 +1,7 @@
 #include "KalmanFilter.h"
 #include <FrameProcessing/PatternController.h>
 #include <algorithm>
-
+#include <Algorithms/Utils/NNMatcher.h>
 
 CKalmanFilter::CKalmanFilter(const std::string &winName) : CAbstractAlgorithm(winName)
 {
@@ -84,6 +84,8 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 	cv::Mat frame;
 	cv::Mat_<float> measureFirst(2,1), measureSecond(2,1);	
 
+	CNNMatcher matcher;
+	
 	while(true)
 	{
 		if(false == CPatternController::getInstance().isMarkerActive()) 
@@ -100,8 +102,10 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 			
 			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
 			{
-				cv::Rect window = templateMatching(iter->second, frame, 0);
-				
+				//cv::Rect window = templateMatching(iter->second, frame, 0);
+				auto points = matcher.getMatchedPoints(frame, iter->second);
+				cv::Rect window = matcher.getRectangle(points, iter->second.cols, iter->second.rows);
+
 				if(false == m_filterPair.first.isInitialized() || false == m_filterPair.second.isInitialized() )
 				{
 					m_filterPair.first.init(window.x, window.y, -1, -1);

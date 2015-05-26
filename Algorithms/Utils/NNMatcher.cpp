@@ -42,7 +42,20 @@ std::vector<cv::Point2f> CNNMatcher::getMatchedPoints(const cv::Mat &source, con
 	return result;
 }
 
-cv::Rect CNNMatcher::getRectangle(const std::vector<cv::Point2f> &points)
+cv::Rect CNNMatcher::getRectangle(const std::vector<cv::Point2f> &points, int width, int height)
 {
-	return cv::Rect();
+	float avgX = 0, avgY = 0;
+	for(auto iter = points.begin(); iter != points.end(); ++iter)
+	{
+		avgX += iter->x;
+		avgY += iter->y; 	
+	}	
+
+	avgX /= points.size();
+	avgY /= points.size();
+
+	cv::Point2f fPoint(avgX - width/2.0, avgY - height/2.0);
+	cv::Point2f sPoint(avgX + width/2.0, avgY + height/2.0);
+
+	return cv::Rect(fPoint, sPoint);
 }	
