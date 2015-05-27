@@ -14,8 +14,56 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
     CPatternController::getInstance().setWinName(m_winName);
 
-    tld::TLD myTracker();
-    /*cv::Point point = CPatternController::getInstance().getImgVec().begin()->first;
+    tld::TLD tracker;
+	bool isInitialized = false;
+	cv::Rect rect;
+	cv::Mat frame, frameGray;
+	while(true)
+	{
+		if(false == CPatternController::getInstance().isMarkerActive()) 
+		{
+			frame = loader.getNextFrame();
+			if(true == frame.empty())
+			{
+				break;
+			}
+
+			CPatternController::getInstance().setFrame( frame );
+			auto imgVec = CPatternController::getInstance().getImgVec();
+		
+			
+			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
+			{
+				cv::Mat tmp = frame.clone();
+				m_container.perform(tmp);
+				if(false == isInitialized)
+				{
+					isInitialized = true;
+					rect.x = iter->first.x; 
+					rect.y = iter->first.y;
+					rect.width = iter->second.cols;
+				   	rect.height = iter->second.rows;
+				   	frameGray = frame.clone();	
+					cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
+				   	tracker.selectObject(frameGray, &rect);
+				}
+				cv::rectangle(frame,tracker.currBB->tl(),tracker.currBB->br(),cv::Scalar(255, 0, 0),2, 8);
+			}
+		
+			cv::imshow(m_winName, frame);
+				
+		}
+		else
+		{
+            cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
+		}
+
+		if(true == interval(20)) break;
+	}
+
+	tracker.release();
+
+	/*cv::Point point = CPatternController::getInstance().getImgVec().begin()->first;
     cv::Rect2d rect(
         point,
         cv::Point(
@@ -60,51 +108,5 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 
 		if(true == interval(20)) break;
 	}*/
-
-	cv::Ptr<cv::TrackerTLD> tracker = cv::TrackerTLD::createTracker();
-	bool isInitialized = false;
-	cv::Rect2d rect;
-	cv::Mat frame;
-	while(true)
-	{
-		if(false == CPatternController::getInstance().isMarkerActive()) 
-		{
-			frame = loader.getNextFrame();
-			if(true == frame.empty())
-			{
-				break;
-			}
-
-			CPatternController::getInstance().setFrame( frame );
-			auto imgVec = CPatternController::getInstance().getImgVec();
-		
-			
-			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
-			{
-				cv::Mat tmp = frame.clone();
-				m_container.perform(tmp);
-				if(false == isInitialized)
-				{
-					isInitialized = true;
-					rect.x = iter->first.x; 
-					rect.y = iter->first.y;
-					rect.width = iter->second.cols;
-				   	rect.height = iter->second.rows;
-					tracker.get()->init(tmp, rect);
-				}
-	      		tracker.get()->update(tmp, rect);
-				cv::rectangle(frame,rect.tl(),rect.br(),cv::Scalar(255, 0, 0),2, 8);
-			}
-		
-			cv::imshow(m_winName, frame);
-				
-		}
-		else
-		{
-            cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
-		}
-
-		if(true == interval(20)) break;
-	}
 }
 

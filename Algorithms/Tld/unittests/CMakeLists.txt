@@ -17,3 +17,4 @@ target_link_libraries (${TLD_TEST}
 target_link_libraries(${TLD_TEST} Tld)
 target_link_libraries(${TLD_TEST} FrameProcessing)
 target_link_libraries(${TLD_TEST} OpenCV)
+target_link_libraries(${TLD_TEST} OpenTLD)
