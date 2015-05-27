@@ -18,6 +18,7 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 	bool isInitialized = false;
 	cv::Rect rect;
 	cv::Mat frame, frameGray;
+	int frameCount = 1;
 	while(true)
 	{
 		if(false == CPatternController::getInstance().isMarkerActive()) 
@@ -47,6 +48,10 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 					cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
 				   	tracker.selectObject(frameGray, &rect);
 				}
+				if (1 == frameCount % 2 && tracker.valid) {
+					//cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
+					tracker.processImage(frame);
+				}
 				cv::rectangle(frame,tracker.currBB->tl(),tracker.currBB->br(),cv::Scalar(255, 0, 0),2, 8);
 			}
 		
@@ -59,6 +64,7 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 		}
 
 		if(true == interval(20)) break;
+		frameCount = (frameCount + 1) % 2;
 	}
 
 	tracker.release();

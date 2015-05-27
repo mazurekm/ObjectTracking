@@ -11,7 +11,6 @@ BOOST_AUTO_TEST_CASE(PassTest)
 	CTransformContainer container;
 	container.addTransform( std::shared_ptr<CImageTransform>(new RgbToHsv()));
 	container.addTransform( std::shared_ptr<CImageTransform>(new MedianBlur()));
-	CTldAlgorithm tld(container, "tld");
 
     std::string path = "Tests/bin/sample1.avi";
 
