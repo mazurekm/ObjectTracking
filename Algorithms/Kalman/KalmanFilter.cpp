@@ -125,8 +125,8 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 				
 				trackBox.x = firstPoint.at<float>(0);
 				trackBox.y = firstPoint.at<float>(1);
-				trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
-				trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
+				//trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
+				//trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
 
 				cv::rectangle(frame, trackBox, cv::Scalar(255,0,0),2,8);				
 			}

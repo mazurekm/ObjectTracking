@@ -19,8 +19,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenCV/include)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenTLD/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/OpenTLD/libopentld)
 
 add_subdirectory(OpenCV)
 add_subdirectory(OpenTLD)

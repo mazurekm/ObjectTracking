@@ -1,15 +1,14 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.6)
 
-project (OpenTLD)
+project(OpenTLD)
 
-file(GLOB binaries ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.a)
-
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/libconfig)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cvblobs)
 
 
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libopentld)
 
-add_library(OpenTLD link.cpp)
+add_library(${PROJECT_NAME} link.cpp)
 
-target_link_libraries(OpenTLD ${binaries})
+target_link_libraries(${PROJECT_NAME} libconfig)
+target_link_libraries(${PROJECT_NAME} libopentld)

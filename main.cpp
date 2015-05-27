@@ -6,9 +6,12 @@
 #include <Algorithms/OptFlow/OpticalFlow.h>
 #include <cassert>
 #include <iostream>
+#include <tld/TLD.h>
 
 int main(int argc, char **argv)
 {
+	tld::TLD tracker2;
+		
 	CVideoLoader loader;
 	COpticalFlow flow("Flow");
 	flow.perform(loader);
