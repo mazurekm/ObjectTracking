@@ -77,7 +77,7 @@ void CKalmanFilter::perform(CVideoLoader &loader)
     CPatternController::getInstance().setWinName(m_winName);
   
 
-	cv::TermCriteria criteria ( cv::TermCriteria::EPS | cv::TermCriteria::COUNT, 10, 1 );	
+	cv::TermCriteria criteria ( cv::TermCriteria::EPS | cv::TermCriteria::COUNT, 20, 1 );	
 	cv::Mat frame;
 	cv::Mat_<float> measureFirst(2,1), measureSecond(2,1);	
 
@@ -125,8 +125,8 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 				
 				trackBox.x = firstPoint.at<float>(0);
 				trackBox.y = firstPoint.at<float>(1);
-				//trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
-				//trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
+				trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
+				trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
 
 				cv::rectangle(frame, trackBox, cv::Scalar(255,0,0),2,8);				
 			}
@@ -158,15 +158,21 @@ void COpenCVimpl::init(int x1Pos, int y1Pos, int, int)
 {
 	//noise
 	cv::setIdentity(m_filter.processNoiseCov, cv::Scalar::all(1e-4));
-	cv::setIdentity(m_filter.measurementNoiseCov, cv::Scalar::all(10));
+	cv::setIdentity(m_filter.measurementNoiseCov, cv::Scalar::all(3));
 	cv::setIdentity(m_filter.errorCovPost, cv::Scalar::all(.1));
 
 	//transition
-	m_filter.transitionMatrix = (cv::Mat_<float>(4, 4) << 1,0,1,0,   0,1,0,1,  0,0,1,0,  0,0,0,1);
+	m_filter.transitionMatrix = (cv::Mat_<float>(4, 4) << 1, 0, 2, 0, 
+														  0, 1, 0, 2, 
+														  0, 0, 1, 0, 
+														  0, 0, 0, 1);
 	m_filter.statePre.at<float>(0) = x1Pos;
 	m_filter.statePre.at<float>(1) = y1Pos;
 	m_filter.statePre.at<float>(2) = 0;
 	m_filter.statePre.at<float>(3) = 0;
+	m_filter.statePre.at<float>(4) = 0;
+	m_filter.statePre.at<float>(5) = 0;
+
 	
 	//measure
 	cv::setIdentity(m_filter.measurementMatrix);
