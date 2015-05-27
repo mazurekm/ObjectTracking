@@ -28,44 +28,34 @@ void CFeatureDetect::perform(CVideoLoader &loader)
 	CNNMatcher matcher;
 	cv:: Mat frame;
 	cv::namedWindow(m_winName, cv::WINDOW_AUTOSIZE );
-	CPatternController::getInstance().setWinName(m_winName);
 	
+	if(true == CPatternController::getInstance().getImgVec().empty())
+	{
+		return;
+	}
+
+	cv::Mat templ = CPatternController::getInstance().getImgVec().begin()->second;
+	m_container.perform(templ);
+
 	while(true)
 	{
 		
-		if(false == CPatternController::getInstance().isMarkerActive()) 
+		frame = loader.getNextFrame();
+
+		if(true == frame.empty())
 		{
-			frame = loader.getNextFrame();
+			break;
+		}
 
-			if(true == frame.empty())
-			{
-				break;
-			}
+		cv::Mat source = frame.clone();
+		m_container.perform(source);
+		auto points = matcher.getMatchedPoints(source, templ);
+		cv::Rect rect = matcher.getRectangle(points, templ.cols, templ.rows);
+		cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
 
-            CPatternController::getInstance().setFrame( frame );
+		cv::imshow(m_winName, frame);
 
-			auto imgVec = CPatternController::getInstance().getImgVec();
-	
-			cv::Mat source = frame.clone();
-			m_container.perform(source);
-
-			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
-			{
-				cv::Mat templ = iter->second.clone();
-				m_container.perform(templ);
-				auto points = matcher.getMatchedPoints(source, templ);
-				cv::Rect rect = matcher.getRectangle(points, templ.cols, templ.rows);
-				cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
-			}	
-
-			cv::imshow(m_winName, frame);
-        }
-		else
-		{
-            cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
-		}	
-
-		if(true == interval(20)) break;
+		if(true == loader.interval(20)) break;
 
 	}
 }

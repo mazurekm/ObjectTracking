@@ -28,9 +28,18 @@ std::vector<cv::Point2f> COpticalFlow::initOpticalFlow(cv::Mat &source, int fNum
 
 void COpticalFlow::perform(CVideoLoader &loader) 
 {
-	cv:: Mat prevImg, nextImg;
+
 	cv::namedWindow(m_winName, cv::WINDOW_AUTOSIZE );
-	CPatternController::getInstance().setWinName(m_winName);
+	
+	if(true == CPatternController::getInstance().getImgVec().empty())
+	{
+		return;
+	}
+
+	cv::Mat templ = CPatternController::getInstance().getImgVec().begin()->second;
+	m_container.perform(templ);
+
+	cv:: Mat prevImg, nextImg;
 	CNNMatcher matcher;
 
 	std::vector<cv::Point2f> fPrev, fNext;
@@ -39,60 +48,45 @@ void COpticalFlow::perform(CVideoLoader &loader)
 			
 	while(true)
 	{
-		if(false == CPatternController::getInstance().isMarkerActive()) 
+		prevImg = nextImg.clone();
+		nextImg = loader.getNextFrame();
+		frame = nextImg.clone();
+		m_container.perform(nextImg);
+
+		if(true == nextImg.empty())
 		{
-			prevImg = nextImg.clone();
-			nextImg = loader.getNextFrame();
-			frame = nextImg.clone();
-			m_container.perform(nextImg);
+			break;
+		}
 
-			if(true == nextImg.empty())
-			{
-				break;
-			}
-
-            CPatternController::getInstance().setFrame( frame );
-
-			auto imgVec = CPatternController::getInstance().getImgVec();
-	
-			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
-			{
-				if(false == isInitialized)
-				{
-					isInitialized = true;
-					cv::Mat src = iter->second.clone();
-					m_container.perform(src);
-					fNext = matcher.getMatchedPoints(frame, iter->second);
-
-				}
-				else
-				{
-					fPrev = fNext;
-					std::vector<uchar> found;
-					cv::Mat err;
-					cv::calcOpticalFlowPyrLK(prevImg, nextImg, fPrev, fNext, found, err);	
-				}
-			
-			
-				if(false == fNext.empty())
-				{
-					cv::Rect rect = matcher.getRectangle(fNext, iter->second.cols, iter->second.rows);
-					cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
-				}
-				else
-				{
-					assert(0&&"No points matching pattern found!");
-				}
-			}
-
-			cv::imshow(m_winName, frame);
-        }
+		if(false == isInitialized)
+		{
+			isInitialized = true;
+			cv::Mat src = frame.clone();
+			m_container.perform(src);
+			fNext = matcher.getMatchedPoints(src, templ);
+		}
 		else
 		{
-            cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
-		}	
+			fPrev = fNext;
+			std::vector<uchar> found;
+			cv::Mat err;
+			cv::calcOpticalFlowPyrLK(prevImg, nextImg, fPrev, fNext, found, err);	
+		}
+			
+			
+		if(false == fNext.empty())
+		{
+			cv::Rect rect = matcher.getRectangle(fNext, templ.cols, templ.rows);
+			cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
+		}
+		else
+		{
+			assert(0&&"No points matching pattern found!");
+		}
 
-		if(true == interval(20)) break;
+		cv::imshow(m_winName, frame);
+
+		if(true == loader.interval(20)) break;
 
 	}
 }

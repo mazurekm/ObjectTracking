@@ -10,7 +10,7 @@ class State {
 public:
     State();
     ~State();
-    virtual std::shared_ptr<State> handle(CVideoLoader &, CAbstractAlgorithm &) = 0;
+    virtual std::unique_ptr<State> handle(CVideoLoader &, CAbstractAlgorithm &) = 0;
 };
 
 class MarkState : public State {
@@ -18,7 +18,7 @@ class MarkState : public State {
 public:
     MarkState();
     ~MarkState();
-    std::shared_ptr<State> handle(CVideoLoader &, CAbstractAlgorithm &);
+    std::unique_ptr<State> handle(CVideoLoader &, CAbstractAlgorithm &);
 };
 
 class TrackState : public State {
@@ -26,7 +26,7 @@ class TrackState : public State {
 public:
     TrackState();
     ~TrackState();
-    std::shared_ptr<State> handle(CVideoLoader &, CAbstractAlgorithm &);
+    std::unique_ptr<State> handle(CVideoLoader &, CAbstractAlgorithm &);
 };
 
 #endif

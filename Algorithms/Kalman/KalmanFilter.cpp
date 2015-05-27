@@ -74,8 +74,13 @@ cv::Rect CKalmanFilter::templateMatching(cv::Mat& templ, cv::Mat &source, int me
 void CKalmanFilter::perform(CVideoLoader &loader)
 {
 	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
-    CPatternController::getInstance().setWinName(m_winName);
-  
+
+	if(true == CPatternController::getInstance().getImgVec().empty())
+	{
+		return;
+	}
+
+	cv::Mat templ = CPatternController::getInstance().getImgVec().begin()->second;
 
 	cv::TermCriteria criteria ( cv::TermCriteria::EPS | cv::TermCriteria::COUNT, 20, 1 );	
 	cv::Mat frame;
@@ -85,62 +90,46 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 	
 	while(true)
 	{
-		if(false == CPatternController::getInstance().isMarkerActive()) 
+		frame = loader.getNextFrame();
+		if(true == frame.empty())
 		{
-			frame = loader.getNextFrame();
-			if(true == frame.empty())
-			{
-				break;
-			}
-
-			CPatternController::getInstance().setFrame( frame );
-			auto imgVec = CPatternController::getInstance().getImgVec();
-		
-			
-			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
-			{
-				cv::Rect window = templateMatching(iter->second, frame, 0);
-				//auto points = matcher.getMatchedPoints(frame, iter->second);
-				//cv::Rect window = matcher.getRectangle(points, iter->second.cols, iter->second.rows);
-
-				if(false == m_filterPair.first.isInitialized() || false == m_filterPair.second.isInitialized() )
-				{
-					m_filterPair.first.init(window.x, window.y, -1, -1);
-					m_filterPair.second.init(window.x+window.width, window.y+window.height, -1, -1);	
-				}
-
-				m_filterPair.first.predict();
-				m_filterPair.second.predict();
-
-				cv::MatND back = calcBackProj(frame, 25);	
-				cv::Rect trackBox =  cv::CamShift(back, window, criteria).boundingRect();
-				measureFirst(0) = trackBox.x;
-				measureFirst(1) = trackBox.y;	
-
-				measureSecond(0) = trackBox.x + trackBox.width;
-				measureSecond(1) = trackBox.y + trackBox.height;
-
-				cv::Mat firstPoint = m_filterPair.first.correct(measureFirst);
-				cv::Mat secondPoint = m_filterPair.second.correct(measureSecond); 
-				
-				trackBox.x = firstPoint.at<float>(0);
-				trackBox.y = firstPoint.at<float>(1);
-				trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
-				trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
-
-				cv::rectangle(frame, trackBox, cv::Scalar(255,0,0),2,8);				
-			}
-		
-			cv::imshow(m_winName, frame);
-				
-		}
-		else
-		{
-            cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
+			break;
 		}
 
-		if(true == interval(20)) break;
+		cv::Rect window = templateMatching(templ, frame, 0);
+		//auto points = matcher.getMatchedPoints(frame, iter->second);
+		//cv::Rect window = matcher.getRectangle(points, iter->second.cols, iter->second.rows);
 
+		if(false == m_filterPair.first.isInitialized() || false == m_filterPair.second.isInitialized() )
+		{
+			m_filterPair.first.init(window.x, window.y, -1, -1);
+			m_filterPair.second.init(window.x+window.width, window.y+window.height, -1, -1);	
+		}
+
+		m_filterPair.first.predict();
+		m_filterPair.second.predict();
+
+		cv::MatND back = calcBackProj(frame, 25);	
+		cv::Rect trackBox =  cv::CamShift(back, window, criteria).boundingRect();
+		measureFirst(0) = trackBox.x;
+		measureFirst(1) = trackBox.y;	
+
+		measureSecond(0) = trackBox.x + trackBox.width;
+		measureSecond(1) = trackBox.y + trackBox.height;
+
+		cv::Mat firstPoint = m_filterPair.first.correct(measureFirst);
+		cv::Mat secondPoint = m_filterPair.second.correct(measureSecond); 
+				
+		trackBox.x = firstPoint.at<float>(0);
+		trackBox.y = firstPoint.at<float>(1);
+		trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
+		trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
+
+		cv::rectangle(frame, trackBox, cv::Scalar(255,0,0),2,8);				
+		
+		cv::imshow(m_winName, frame);
+				
+		if(true == loader.interval(20)) break;
 	}
 }
 

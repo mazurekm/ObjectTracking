@@ -13,11 +13,11 @@ MarkState::MarkState() {
 MarkState::~MarkState() {
 }
 
-std::shared_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm) {
+std::unique_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm) {
     cv::Mat frame;
     cv::namedWindow(algorithm.m_winName, CV_WINDOW_AUTOSIZE);
     CPatternController::getInstance().setWinName(algorithm.m_winName);
-    std::shared_ptr<State> retPtr( new TrackState() );
+    std::unique_ptr<State> retPtr( new TrackState() );
     std::vector<std::pair<cv::Point, cv::Mat>> imgVec = CPatternController::getInstance().getImgVec();
     while(0 == imgVec.size()) {
         if(false == CPatternController::getInstance().isMarkerActive()) {
@@ -30,11 +30,7 @@ std::shared_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorit
         }
 
         imgVec = CPatternController::getInstance().getImgVec(); 
-
-        if(cv::waitKey(20) == 27) {
-            retPtr = nullptr;
-            break;
-        }   
+		if(true == loader.interval(20)) break;
     }
     return retPtr;
 }
@@ -45,7 +41,7 @@ TrackState::TrackState() {
 TrackState::~TrackState() {
 }
 
-std::shared_ptr<State> TrackState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm) {
+std::unique_ptr<State> TrackState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm) {
     algorithm.perform(loader);
     return nullptr; 
 }

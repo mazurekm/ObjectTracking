@@ -14,6 +14,17 @@ public:
 
 	cv::Mat getNextFrame();
 	cv::Mat getCurrentFrame();	
+	
+	bool interval(int miliSec)
+	{
+		int key = cv::waitKey(miliSec);
+		if(1048603 == key || 27 == key)
+		{
+			return true;
+		}		
+
+		return false;
+	}
 
 private:
 	std::string m_path;
