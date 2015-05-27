@@ -1,5 +1,6 @@
 #include "TldAlgorithm.h"
 #include "opencv2/tracking/tracker.hpp"
+#include "tld/TLD.h"
 #include <FrameProcessing/PatternController.h>
 #include <iostream>
 
@@ -12,6 +13,8 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 {
 	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
     CPatternController::getInstance().setWinName(m_winName);
+
+    tld::TLD myTracker();
     /*cv::Point point = CPatternController::getInstance().getImgVec().begin()->first;
     cv::Rect2d rect(
         point,
