@@ -35,6 +35,7 @@ public:
 	void markerActivity(bool flag);
 	bool isMarkerActive() const;
 	void setWinName(const std::string &str);
+	void removeAllPatterns();
 
 private:
 	CPatternController(const std::string &name);

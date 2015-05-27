@@ -7,6 +7,11 @@ class CTldAlgorithm : public CAbstractAlgorithm
 {
 public:
 	CTldAlgorithm(const CTransformContainer &container, const std::string &winName);
+
+	~CTldAlgorithm()
+	{
+	}
+	
 	void perform(CVideoLoader &loader);
 };
 

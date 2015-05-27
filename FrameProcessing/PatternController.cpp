@@ -30,6 +30,12 @@ void onMouse(int event, int x, int y, int flags, void *param)
 }
 
 
+void CPatternController::removeAllPatterns()
+{
+	m_imgVec.clear();	
+}
+
+
 CPatternController::CPatternController()
 {
 

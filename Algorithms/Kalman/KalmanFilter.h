@@ -31,7 +31,10 @@ class CKalmanFilter : public CAbstractAlgorithm
 public:
 	CKalmanFilter(const std::string &winName );
 	CKalmanFilter(const CTransformContainer &container, const std::string &winName);
-	~CKalmanFilter();
+
+	~CKalmanFilter()
+	{
+	}
 
 	void perform(CVideoLoader &loader);
 

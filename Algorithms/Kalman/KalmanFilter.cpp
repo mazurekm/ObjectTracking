@@ -14,9 +14,6 @@ CKalmanFilter::CKalmanFilter(const CTransformContainer &container, const std::st
 	
 }
 
-CKalmanFilter::~CKalmanFilter()
-{
-}
 
 cv::MatND CKalmanFilter::calcBackProj(cv::Mat &img, int bins)
 {
@@ -102,9 +99,9 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 			
 			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
 			{
-				//cv::Rect window = templateMatching(iter->second, frame, 0);
-				auto points = matcher.getMatchedPoints(frame, iter->second);
-				cv::Rect window = matcher.getRectangle(points, iter->second.cols, iter->second.rows);
+				cv::Rect window = templateMatching(iter->second, frame, 0);
+				//auto points = matcher.getMatchedPoints(frame, iter->second);
+				//cv::Rect window = matcher.getRectangle(points, iter->second.cols, iter->second.rows);
 
 				if(false == m_filterPair.first.isInitialized() || false == m_filterPair.second.isInitialized() )
 				{

@@ -3,7 +3,9 @@
 
 #include<FrameProcessing/TransformContainer.h>
 #include<FrameProcessing/VideoLoader.h>
+#include<FrameProcessing/PatternController.h>
 #include<string>
+#include<iostream>
 
 class CAbstractAlgorithm
 {
@@ -15,6 +17,12 @@ public:
 
 	CAbstractAlgorithm(const std::string &winName) : m_winName(winName)
 	{
+	}
+
+	virtual ~CAbstractAlgorithm()
+	{
+		cv::destroyWindow(m_winName);
+		CPatternController::getInstance().removeAllPatterns();
 	}
 
 	virtual void perform(CVideoLoader &loader) = 0;

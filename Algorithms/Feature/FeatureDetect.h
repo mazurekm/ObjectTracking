@@ -9,6 +9,10 @@ public:
 	CFeatureDetect(const CTransformContainer &container, const std::string &winName);
 	CFeatureDetect(const std::string &winName);
 	
+	~CFeatureDetect()
+	{
+	}
+
 	void perform(CVideoLoader &loader);
 
 private:

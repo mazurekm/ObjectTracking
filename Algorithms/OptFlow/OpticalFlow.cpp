@@ -4,6 +4,8 @@
 #include <FrameProcessing/PatternController.h>
 #include<algorithm>
 
+#include <cassert>
+
 COpticalFlow::COpticalFlow(const CTransformContainer &container, const std::string &winName) : 
 		CAbstractAlgorithm(container, winName) 
 {
@@ -76,6 +78,10 @@ void COpticalFlow::perform(CVideoLoader &loader)
 				{
 					cv::Rect rect = matcher.getRectangle(fNext, iter->second.cols, iter->second.rows);
 					cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
+				}
+				else
+				{
+					assert(0&&"No points matching pattern found!");
 				}
 			}
 

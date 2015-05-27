@@ -54,11 +54,8 @@ void CFeatureDetect::perform(CVideoLoader &loader)
 				cv::Mat templ = iter->second.clone();
 				m_container.perform(templ);
 				auto points = matcher.getMatchedPoints(source, templ);
-				for(auto pt = points.begin(); pt != points.end(); ++pt)
-				{
-					cv::circle(frame, *pt, 7, cv::Scalar(255,0,0), -1); 
-				}
-
+				cv::Rect rect = matcher.getRectangle(points, templ.cols, templ.rows);
+				cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
 			}	
 
 			cv::imshow(m_winName, frame);
