@@ -30,6 +30,7 @@ private:
 	std::string m_path;
 	cv::VideoCapture m_capture;
 	cv::Mat m_current;
+	cv::VideoCapture cap;
 };
 
 #endif 

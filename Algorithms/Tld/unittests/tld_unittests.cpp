@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE(PassTest)
 	container.addTransform( std::shared_ptr<CImageTransform>(new RgbToHsv()));
 	container.addTransform( std::shared_ptr<CImageTransform>(new MedianBlur()));
 
-    std::string path = "Tests/bin/sample1.avi";
+    std::string path = "Tests/bin/sample_2.wmv";
 
     CVideoLoader loader(path);
 	CTldAlgorithm alg(container,"tld");

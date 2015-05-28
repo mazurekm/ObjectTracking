@@ -3,6 +3,7 @@
 
 CVideoLoader::CVideoLoader(const std::string &path) : m_capture(path)
 {
+
 	getNextFrame();
 }
 

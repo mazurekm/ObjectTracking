@@ -15,6 +15,9 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
     CPatternController::getInstance().setWinName(m_winName);
 
     tld::TLD tracker;
+    tracker.trackerEnabled = trackerEnabled;
+	tracker.alternating = alternating;
+	tracker.learningEnabled = learningEnabled;
 	bool isInitialized = false;
 	cv::Rect rect;
 	cv::Mat frame, frameGray;
@@ -46,13 +49,33 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 				   	rect.height = iter->second.rows;
 				   	frameGray = frame.clone();	
 					cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
+
+					tracker.detectorCascade->imgWidth = frameGray.cols;
+					tracker.detectorCascade->imgHeight = frameGray.rows;
+					tracker.detectorCascade->imgWidthStep = frameGray.step;
+					tracker.detectorCascade->varianceFilter->enabled = varianceFilterEnabled;
+					tracker.detectorCascade->ensembleClassifier->enabled = ensembleClassifierEnabled;
+					tracker.detectorCascade->nnClassifier->enabled = nnClassifierEnabled;
+					tracker.detectorCascade->nnClassifier->thetaTP = thetaTP;
+					tracker.detectorCascade->nnClassifier->thetaFP = thetaFP;
+					tracker.detectorCascade->useShift = useShift;
+					tracker.detectorCascade->shift = shift;
+					tracker.detectorCascade->minScale = minScale;
+					tracker.detectorCascade->maxScale = maxScale;
+					tracker.detectorCascade->minSize = minSize;
+					tracker.detectorCascade->numTrees = numTrees;
+
 				   	tracker.selectObject(frameGray, &rect);
 				}
-				if (1 == frameCount % 2 && tracker.valid) {
-					//cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
+				if (1 == frameCount % 2) {
 					tracker.processImage(frame);
 				}
-				cv::rectangle(frame,tracker.currBB->tl(),tracker.currBB->br(),cv::Scalar(255, 0, 0),2, 8);
+
+				std::cout << "Posterior: " << tracker.currConf << std::endl;
+				if (tracker.currBB != NULL) {
+
+					cv::rectangle(frame,tracker.currBB->tl(),tracker.currBB->br(),cv::Scalar(255, 0, 0),2, 8);
+				}
 			}
 		
 			cv::imshow(m_winName, frame);
