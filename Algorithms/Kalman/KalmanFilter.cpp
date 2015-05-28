@@ -109,23 +109,23 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 		m_filterPair.first.predict();
 		m_filterPair.second.predict();
 
-		cv::MatND back = calcBackProj(frame, 25);	
-		cv::Rect trackBox =  cv::CamShift(back, window, criteria).boundingRect();
-		measureFirst(0) = trackBox.x;
-		measureFirst(1) = trackBox.y;	
+		//cv::MatND back = calcBackProj(frame, 25);	
+		//cv::Rect trackBox =  cv::CamShift(back, window, criteria).boundingRect();
+		measureFirst(0) = window.x;
+		measureFirst(1) = window.y;	
 
-		measureSecond(0) = trackBox.x + trackBox.width;
-		measureSecond(1) = trackBox.y + trackBox.height;
+		measureSecond(0) = window.x + window.width;
+		measureSecond(1) = window.y + window.height;
 
 		cv::Mat firstPoint = m_filterPair.first.correct(measureFirst);
 		cv::Mat secondPoint = m_filterPair.second.correct(measureSecond); 
 				
-		trackBox.x = firstPoint.at<float>(0);
-		trackBox.y = firstPoint.at<float>(1);
-		trackBox.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
-		trackBox.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
+		window.x = firstPoint.at<float>(0);
+		window.y = firstPoint.at<float>(1);
+		window.height = secondPoint.at<float>(1) - firstPoint.at<float>(1); 
+		window.width = secondPoint.at<float>(0) - firstPoint.at<float>(0);  
 
-		cv::rectangle(frame, trackBox, cv::Scalar(255,0,0),2,8);				
+		cv::rectangle(frame, window, cv::Scalar(255,0,0),2,8);				
 		
 		cv::imshow(m_winName, frame);
 				
