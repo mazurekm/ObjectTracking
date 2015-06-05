@@ -24,12 +24,13 @@ class CTldAlgorithm : public CAbstractAlgorithm
 
 public:
 	CTldAlgorithm(const CTransformContainer &container, const std::string &winName);
+	CTldAlgorithm(const std::string &winName);
 
 	~CTldAlgorithm()
 	{
 	}
 	
-	void perform(CVideoLoader &loader);
+	void perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data);
 };
 
 #endif

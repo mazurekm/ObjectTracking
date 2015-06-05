@@ -36,7 +36,7 @@ public:
 	{
 	}
 
-	void perform(CVideoLoader &loader);
+	void perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data);
 
 private:
 	cv::MatND calcBackProj(cv::Mat &img, int bins);

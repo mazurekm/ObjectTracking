@@ -14,7 +14,7 @@ public:
 	{
 	}
 
-    void perform(CVideoLoader &loader);
+    void perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data);
 private:
 	std::vector<cv::Point2f> initOpticalFlow(cv::Mat &source, int fNum, float qLevel, int minDist);
 };

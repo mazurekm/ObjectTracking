@@ -7,12 +7,12 @@ class CTldOpenCVAlgorithm : public CAbstractAlgorithm
 {
 public:
     CTldOpenCVAlgorithm(const CTransformContainer &container, const std::string &winName);
-
+	CTldOpenCVAlgorithm(const std::string &winName);
     ~CTldOpenCVAlgorithm()
     {
     }
     
-    void perform(CVideoLoader &loader);
+    void perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data);
 };
 
 #endif

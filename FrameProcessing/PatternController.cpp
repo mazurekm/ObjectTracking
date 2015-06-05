@@ -42,6 +42,7 @@ CPatternController::CPatternController()
 }
 
 
+
 std::vector<std::pair<cv::Point, cv::Mat>> CPatternController::getImgVec() const
 {
 	return m_imgVec;
@@ -52,7 +53,13 @@ void CPatternController::setFrame(const cv::Mat &img)
 	m_objToAdd = img.clone();
 	m_original = img.clone();
 }
-	
+
+
+void CPatternController::addPattern(const cv::Mat &img, int x, int y)
+{
+	m_imgVec.push_back( std::make_pair(cv::Point(x,y),img) );
+}
+
 void CPatternController::drawArea(int x, int y, int px, int py)
 {
 	m_objToAdd = m_original.clone();
@@ -111,6 +118,14 @@ void CPatternController::addObject(int x, int y, int px, int py)
 		cv::Rect roi(cv::Point(x+2, y+2), cv::Point(px-2, py-2));
 		m_imgVec.push_back( std::make_pair(cv::Point(x+2, y+2), m_objToAdd(roi)) );	
 	}
+}
+
+void CPatternController::saveTemplate(const std::string &filename)
+{
+	if(false == m_imgVec.empty() )
+	{
+		cv::imwrite(filename, m_imgVec.begin()->second);	
+	}	
 }
 
 void CPatternController::markerActivity(bool flag)

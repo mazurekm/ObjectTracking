@@ -29,9 +29,6 @@ add_subdirectory(Algorithms)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(${PROJECT_NAME} OpenCV)
-target_link_libraries(${PROJECT_NAME} OpenTLD)
-target_link_libraries(${PROJECT_NAME} FrameProcessing)
 target_link_libraries(${PROJECT_NAME} Algorithms)
 
 enable_testing()

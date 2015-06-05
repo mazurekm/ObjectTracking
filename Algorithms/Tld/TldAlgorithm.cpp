@@ -3,17 +3,24 @@
 #include "tld/TLD.h"
 #include <FrameProcessing/PatternController.h>
 #include <iostream>
+#include <Algorithms/Utils/PointContainer.h>
+#include <chrono>
 
 CTldAlgorithm::CTldAlgorithm(const CTransformContainer &container, const std::string &winName) : CAbstractAlgorithm(container, winName) 
 {
 	
 }
 
-void CTldAlgorithm::perform(CVideoLoader &loader)
+CTldAlgorithm::CTldAlgorithm(const std::string &winName) : CAbstractAlgorithm(winName)
 {
-	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
-    CPatternController::getInstance().setWinName(m_winName);
+	m_container.addTransform( std::shared_ptr<CImageTransform>(new RgbToHsv()));
+	m_container.addTransform( std::shared_ptr<CImageTransform>(new MedianBlur()));
+}
 
+void CTldAlgorithm::perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data)
+{
+	cv::Mat templ = CPatternController::getInstance().getImgVec().begin()->second;
+	CPointContainer points;
     tld::TLD tracker;
     tracker.trackerEnabled = trackerEnabled;
 	tracker.alternating = alternating;
@@ -22,120 +29,76 @@ void CTldAlgorithm::perform(CVideoLoader &loader)
 	cv::Rect rect;
 	cv::Mat frame, frameGray;
 	int frameCount = 1;
-	while(true)
-	{
-		if(false == CPatternController::getInstance().isMarkerActive()) 
-		{
-			frame = loader.getNextFrame();
-			if(true == frame.empty())
-			{
-				break;
-			}
+	std::chrono::time_point<std::chrono::system_clock> start, end;			
 
-			CPatternController::getInstance().setFrame( frame );
-			auto imgVec = CPatternController::getInstance().getImgVec();
-		
-			
-			for(auto iter = imgVec.begin(); iter != imgVec.end(); ++iter)
-			{
-				cv::Mat tmp = frame.clone();
-				m_container.perform(tmp);
-				if(false == isInitialized)
-				{
-					isInitialized = true;
-					rect.x = iter->first.x; 
-					rect.y = iter->first.y;
-					rect.width = iter->second.cols;
-				   	rect.height = iter->second.rows;
-				   	frameGray = frame.clone();	
-					cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
-
-					tracker.detectorCascade->imgWidth = frameGray.cols;
-					tracker.detectorCascade->imgHeight = frameGray.rows;
-					tracker.detectorCascade->imgWidthStep = frameGray.step;
-					tracker.detectorCascade->varianceFilter->enabled = varianceFilterEnabled;
-					tracker.detectorCascade->ensembleClassifier->enabled = ensembleClassifierEnabled;
-					tracker.detectorCascade->nnClassifier->enabled = nnClassifierEnabled;
-					tracker.detectorCascade->nnClassifier->thetaTP = thetaTP;
-					tracker.detectorCascade->nnClassifier->thetaFP = thetaFP;
-					tracker.detectorCascade->useShift = useShift;
-					tracker.detectorCascade->shift = shift;
-					tracker.detectorCascade->minScale = minScale;
-					tracker.detectorCascade->maxScale = maxScale;
-					tracker.detectorCascade->minSize = minSize;
-					tracker.detectorCascade->numTrees = numTrees;
-
-				   	tracker.selectObject(frameGray, &rect);
-				}
-				if (1 == frameCount % 2) {
-					tracker.processImage(frame);
-				}
-
-				std::cout << "Posterior: " << tracker.currConf << std::endl;
-				if (tracker.currBB != NULL) {
-
-					cv::rectangle(frame,tracker.currBB->tl(),tracker.currBB->br(),cv::Scalar(255, 0, 0),2, 8);
-				}
-			}
-		
-			cv::imshow(m_winName, frame);
-				
-		}
-		else
-		{
-            cv::imshow(m_winName, CPatternController::getInstance().getFrame() );
-		}
-
-		if(true == interval(20)) break;
-		frameCount = (frameCount + 1) % 2;
-	}
-
-	tracker.release();
-
-	/*cv::Point point = CPatternController::getInstance().getImgVec().begin()->first;
-    cv::Rect2d rect(
-        point,
-        cv::Point(
-            point.x + CPatternController::getInstance().getImgVec().begin()->second.cols,
-            point.y + CPatternController::getInstance().getImgVec().begin()->second.rows
-        )
-    );
-
-	cv::Ptr<cv::TrackerTLD> tracker = cv::TrackerTLD::createTracker();
-	cv::Mat frame = loader.getNextFrame();
-	m_container.perform(frame);
-	tracker.get()->init(frame, rect);
-	std::cout << "tracker created" << std::endl;
-
-	
-	int frameCount = 1;
 	while(true)
 	{
 		frame = loader.getNextFrame();
-
 		if(true == frame.empty())
 		{
 			break;
 		}
 
-		cv::Mat frameForUpdate = frame.clone();
-		m_container.perform(frameForUpdate);
-		
-        if (0 == frameCount) {
-	      tracker.get()->update(frameForUpdate, rect);
-	    }
+		start = std::chrono::system_clock::now();	
+		if(false == isInitialized)
+		{
+			isInitialized = true;
+			rect = templateMatching(templ, frame, 0); 
+			frameGray = frame.clone();	
+			cv::cvtColor(frame, frameGray, CV_BGR2GRAY);
 
-	    cv::rectangle(frame,
-           rect.tl(),
-           rect.br(),
-           cv::Scalar(255, 0, 0),
-           2, 8
-        );
+			tracker.detectorCascade->imgWidth = frameGray.cols;
+			tracker.detectorCascade->imgHeight = frameGray.rows;
+			tracker.detectorCascade->imgWidthStep = frameGray.step;
+			tracker.detectorCascade->varianceFilter->enabled = varianceFilterEnabled;
+			tracker.detectorCascade->ensembleClassifier->enabled = ensembleClassifierEnabled;
+			tracker.detectorCascade->nnClassifier->enabled = nnClassifierEnabled;
+			tracker.detectorCascade->nnClassifier->thetaTP = thetaTP;
+			tracker.detectorCascade->nnClassifier->thetaFP = thetaFP;
+			tracker.detectorCascade->useShift = useShift;
+			tracker.detectorCascade->shift = shift;
+			tracker.detectorCascade->minScale = minScale;
+			tracker.detectorCascade->maxScale = maxScale;
+			tracker.detectorCascade->minSize = minSize;
+			tracker.detectorCascade->numTrees = numTrees;
+
+			tracker.selectObject(frameGray, &rect);
+		}
+
+		if (1 == frameCount % 2) 
+		{
+				tracker.processImage(frame);
+		}
+
+		if (tracker.currBB != NULL) {
+				
+			if(nullptr != data)
+			{
+				points.addPoint(tracker.currBB->tl(),tracker.currBB->br());
+				data->addPredictPoints(tracker.currBB->tl(),tracker.currBB->br());
+			}
+			cv::rectangle(frame,tracker.currBB->tl(),tracker.currBB->br(),cv::Scalar(255, 0, 0),2, 8);
+		}
+		else if(nullptr != data)
+		{
+		//	points.addPoint(cv::Point(-1, -1), cv::Point(-1, -1));
+			data->addPredictPoints(cv::Point(-1, -1), cv::Point(-1, -1));
+		}
+	
+		end = std::chrono::system_clock::now();	
+
+		std::chrono::duration<double> elapsedTime = end-start;
+		if(nullptr != data)
+		{
+			data->addComputeTime( elapsedTime.count() );
+		}
 
 		cv::imshow(m_winName, frame);
-		frameCount = (25 == frameCount) ? 0 : frameCount+1;
 
-		if(true == interval(20)) break;
-	}*/
+		if(true == loader.interval(20)) break;
+		frameCount = (frameCount + 1) % 2;
+	}
+	//points.toFile(m_winName);
+	tracker.release();
 }
 

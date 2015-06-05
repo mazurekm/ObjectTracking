@@ -1,6 +1,5 @@
 #include "FeatureDetect.h"
 
-
 #include <opencv2/features2d.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/xfeatures2d.hpp>
@@ -11,6 +10,8 @@
 #include<algorithm>
 #include<vector>
 #include<functional>
+
+#include<chrono>
 
 CFeatureDetect::CFeatureDetect(const CTransformContainer &container, const std::string &winName) : CAbstractAlgorithm(container, winName)
 {
@@ -23,7 +24,7 @@ CFeatureDetect::CFeatureDetect(const std::string &winName) : CAbstractAlgorithm(
 }
 
 
-void CFeatureDetect::perform(CVideoLoader &loader)
+void CFeatureDetect::perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data)
 {
 	CNNMatcher matcher;
 	cv:: Mat frame;
@@ -37,11 +38,13 @@ void CFeatureDetect::perform(CVideoLoader &loader)
 	cv::Mat templ = CPatternController::getInstance().getImgVec().begin()->second;
 	m_container.perform(templ);
 
+
+	std::chrono::time_point<std::chrono::system_clock> start, end;			
 	while(true)
 	{
-		
 		frame = loader.getNextFrame();
-
+		start = std::chrono::system_clock::now();	
+		
 		if(true == frame.empty())
 		{
 			break;
@@ -52,6 +55,16 @@ void CFeatureDetect::perform(CVideoLoader &loader)
 		auto points = matcher.getMatchedPoints(source, templ);
 		cv::Rect rect = matcher.getRectangle(points, templ.cols, templ.rows);
 		cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
+
+		end = std::chrono::system_clock::now();	
+		std::chrono::duration<double> elapsedTime = end-start;
+
+		if(nullptr != data)
+		{
+			data->addComputeTime( elapsedTime.count() );
+			data->addPredictPoints(cv::Point(rect.x, rect.y), 
+							cv::Point(rect.x+rect.width, rect.y+rect.height));
+		}
 
 		cv::imshow(m_winName, frame);
 

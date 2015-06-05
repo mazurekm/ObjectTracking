@@ -4,7 +4,7 @@ project(FrameProcessing)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-set(SOURCE PatternController.cpp ImageTransform.cpp VideoLoader.cpp State.cpp TransformContainer.cpp)
+set(SOURCE PatternController.cpp ImageTransform.cpp VideoLoader.cpp TransformContainer.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCE})
 

@@ -14,6 +14,8 @@ target_link_libraries (${TLD_OPENCV_TEST}
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 
+
+target_link_libraries(${TLD_OPENCV_TEST} Utils)
 target_link_libraries(${TLD_OPENCV_TEST} TldOpenCV)
 target_link_libraries(${TLD_OPENCV_TEST} FrameProcessing)
 target_link_libraries(${TLD_OPENCV_TEST} OpenCV)

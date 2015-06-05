@@ -5,6 +5,7 @@
 #include<algorithm>
 
 #include <cassert>
+#include <chrono>
 
 COpticalFlow::COpticalFlow(const CTransformContainer &container, const std::string &winName) : 
 		CAbstractAlgorithm(container, winName) 
@@ -26,16 +27,8 @@ std::vector<cv::Point2f> COpticalFlow::initOpticalFlow(cv::Mat &source, int fNum
 }
 
 
-void COpticalFlow::perform(CVideoLoader &loader) 
+void COpticalFlow::perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data) 
 {
-
-	cv::namedWindow(m_winName, cv::WINDOW_AUTOSIZE );
-	
-	if(true == CPatternController::getInstance().getImgVec().empty())
-	{
-		return;
-	}
-
 	cv::Mat templ = CPatternController::getInstance().getImgVec().begin()->second;
 	m_container.perform(templ);
 
@@ -45,11 +38,15 @@ void COpticalFlow::perform(CVideoLoader &loader)
 	std::vector<cv::Point2f> fPrev, fNext;
 	bool isInitialized = false;
 	cv::Mat frame;	
-			
+	cv::Rect rect;	
+
+	std::chrono::time_point<std::chrono::system_clock> start, end;			
 	while(true)
 	{
 		prevImg = nextImg.clone();
 		nextImg = loader.getNextFrame();
+		
+		start = std::chrono::system_clock::now();	
 		frame = nextImg.clone();
 		m_container.perform(nextImg);
 
@@ -76,14 +73,24 @@ void COpticalFlow::perform(CVideoLoader &loader)
 			
 		if(false == fNext.empty())
 		{
-			cv::Rect rect = matcher.getRectangle(fNext, templ.cols, templ.rows);
+			rect = matcher.getRectangle(fNext, templ.cols, templ.rows);
 			cv::rectangle(frame, rect, cv::Scalar(255,0,0), 2, 8);
 		}
 		else
 		{
 			assert(0&&"No points matching pattern found!");
 		}
-
+		
+		end = std::chrono::system_clock::now();	
+		std::chrono::duration<double> elapsedTime = end-start;
+		
+		if(nullptr != data)
+		{
+			data->addComputeTime( elapsedTime.count() );
+			data->addPredictPoints(cv::Point(rect.x, rect.y), 
+							cv::Point(rect.x+rect.width, rect.y+rect.height));
+		}
+			
 		cv::imshow(m_winName, frame);
 
 		if(true == loader.interval(20)) break;

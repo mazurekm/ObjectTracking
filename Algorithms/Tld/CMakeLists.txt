@@ -8,6 +8,8 @@ SET(SOURCE TldAlgorithm.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCE})
 
+target_link_libraries(${PROJECT_NAME} OpenTLD) 
+target_link_libraries(${PROJECT_NAME} Utils)
 target_link_libraries(${PROJECT_NAME} FrameProcessing)
 
 add_subdirectory(unittests)

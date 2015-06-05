@@ -13,7 +13,7 @@ public:
 	{
 	}
 
-	void perform(CVideoLoader &loader);
+	void perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data);
 
 private:
 	void featureDetect(const cv::Mat &source, const cv::Mat &templ, cv::Mat &frame);

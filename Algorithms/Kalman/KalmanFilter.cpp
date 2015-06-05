@@ -2,6 +2,7 @@
 #include <FrameProcessing/PatternController.h>
 #include <algorithm>
 #include <Algorithms/Utils/NNMatcher.h>
+#include <chrono>
 
 CKalmanFilter::CKalmanFilter(const std::string &winName) : CAbstractAlgorithm(winName)
 {
@@ -71,7 +72,7 @@ cv::Rect CKalmanFilter::templateMatching(cv::Mat& templ, cv::Mat &source, int me
 	return rect;
 }
 
-void CKalmanFilter::perform(CVideoLoader &loader)
+void CKalmanFilter::perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> &data)
 {
 	cv::namedWindow(m_winName, CV_WINDOW_AUTOSIZE);
 
@@ -87,10 +88,12 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 	cv::Mat_<float> measureFirst(2,1), measureSecond(2,1);	
 
 	CNNMatcher matcher;
-	
+		
+	std::chrono::time_point<std::chrono::system_clock> start, end;			
 	while(true)
 	{
 		frame = loader.getNextFrame();
+		start = std::chrono::system_clock::now();	
 		if(true == frame.empty())
 		{
 			break;
@@ -127,6 +130,15 @@ void CKalmanFilter::perform(CVideoLoader &loader)
 
 		cv::rectangle(frame, window, cv::Scalar(255,0,0),2,8);				
 		
+		end = std::chrono::system_clock::now();	
+		std::chrono::duration<double> elapsedTime = end-start;
+
+		if(nullptr != data)
+		{
+			data->addComputeTime( elapsedTime.count() );
+			data->addPredictPoints(cv::Point(window.x, window.y), 
+							cv::Point(window.x+window.width, window.y+window.height));
+		}
 		cv::imshow(m_winName, frame);
 				
 		if(true == loader.interval(20)) break;
@@ -151,16 +163,14 @@ void COpenCVimpl::init(int x1Pos, int y1Pos, int, int)
 	cv::setIdentity(m_filter.errorCovPost, cv::Scalar::all(.1));
 
 	//transition
-	m_filter.transitionMatrix = (cv::Mat_<float>(4, 4) << 1, 0, 2, 0, 
-														  0, 1, 0, 2, 
+	m_filter.transitionMatrix = (cv::Mat_<float>(4, 4) << 1, 0, 6, 0, 
+														  0, 1, 0, 6, 
 														  0, 0, 1, 0, 
 														  0, 0, 0, 1);
 	m_filter.statePre.at<float>(0) = x1Pos;
 	m_filter.statePre.at<float>(1) = y1Pos;
 	m_filter.statePre.at<float>(2) = 0;
 	m_filter.statePre.at<float>(3) = 0;
-	m_filter.statePre.at<float>(4) = 0;
-	m_filter.statePre.at<float>(5) = 0;
 
 	
 	//measure

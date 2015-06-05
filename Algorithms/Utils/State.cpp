@@ -13,7 +13,7 @@ MarkState::MarkState() {
 MarkState::~MarkState() {
 }
 
-std::unique_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm) {
+std::unique_ptr<State> MarkState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm, std::unique_ptr<CMeasuredData> &) {
     cv::Mat frame;
     cv::namedWindow(algorithm.m_winName, CV_WINDOW_AUTOSIZE);
     CPatternController::getInstance().setWinName(algorithm.m_winName);
@@ -41,7 +41,8 @@ TrackState::TrackState() {
 TrackState::~TrackState() {
 }
 
-std::unique_ptr<State> TrackState::handle(CVideoLoader & loader, CAbstractAlgorithm & algorithm) {
-    algorithm.perform(loader);
+std::unique_ptr<State> TrackState::handle(CVideoLoader & loader, 
+				CAbstractAlgorithm & algorithm, std::unique_ptr<CMeasuredData> &data) {
+    algorithm.perform(loader, data);
     return nullptr; 
 }

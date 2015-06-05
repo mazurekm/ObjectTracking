@@ -6,7 +6,7 @@
 
 std::vector<cv::Point2f> CNNMatcher::getMatchedPoints(const cv::Mat &source, const cv::Mat &templ)
 {
-	cv::Ptr<cv::xfeatures2d::SURF> detector = cv::xfeatures2d::SURF::create( m_minHessian );
+	cv::Ptr<cv::xfeatures2d::SIFT> detector = cv::xfeatures2d::SIFT::create( m_minHessian );
 
 	std::vector<cv::KeyPoint> keypointsObject, keypointsScene;
 	cv::Mat descriptorsObject, descriptorsScene;
@@ -29,7 +29,8 @@ std::vector<cv::Point2f> CNNMatcher::getMatchedPoints(const cv::Mat &source, con
 	}
 
 	std::vector< cv::DMatch > goodMatches;
-			
+
+
 	auto cond =  [&min](cv::DMatch el) {return el.distance <= std::max(2*min, 0.02);};
 	std::copy_if(matches.begin(), matches.end(), std::back_inserter(goodMatches), cond);
 

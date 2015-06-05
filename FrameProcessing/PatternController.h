@@ -36,6 +36,8 @@ public:
 	bool isMarkerActive() const;
 	void setWinName(const std::string &str);
 	void removeAllPatterns();
+	void saveTemplate(const std::string &filename);
+	void addPattern(const cv::Mat &img, int x, int y);
 
 private:
 	CPatternController(const std::string &name);
