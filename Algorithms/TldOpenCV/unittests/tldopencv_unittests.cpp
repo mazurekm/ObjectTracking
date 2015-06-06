@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(sample1_test)
 	}
 
 	auto qual = ptr->getAvgMark();
-	std::cout << ptr->getAvgTime() <<" " <<qual.first <<" " <<qual.second << std::endl; 
+	std::cout << ptr->getAvgTime() <<" " <<qual.distance <<" " <<qual.width <<" " << qual.height << std::endl; 
 }
 
 
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(sample2_test)
 		state = state->handle(loader, alg, ptr);	 	
 	}
 	auto qual = ptr->getAvgMark();
-	std::cout << ptr->getAvgTime() <<" " <<qual.first <<" " <<qual.second << std::endl; 
+	std::cout << ptr->getAvgTime() <<" " <<qual.distance <<" " <<qual.width <<" " << qual.height << std::endl; 
 
 }
 
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(sample3_test)
 	}
 
 	auto qual = ptr->getAvgMark();
-	std::cout << ptr->getAvgTime() <<" " <<qual.first <<" " <<qual.second << std::endl; 
+	std::cout << ptr->getAvgTime() <<" " <<qual.distance <<" " <<qual.width <<" " << qual.height << std::endl; 
 
 }
 
@@ -129,5 +129,5 @@ BOOST_AUTO_TEST_CASE(sample4_test)
 	}
 	
 	auto qual = ptr->getAvgMark();
-	std::cout << ptr->getAvgTime() <<" " <<qual.first <<" " <<qual.second << std::endl; 
+	std::cout << ptr->getAvgTime() <<" " <<qual.distance <<" " <<qual.width <<" " << qual.height << std::endl; 
 }

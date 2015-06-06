@@ -48,13 +48,14 @@ void COpticalFlow::perform(CVideoLoader &loader, std::unique_ptr<CMeasuredData> 
 		
 		start = std::chrono::system_clock::now();	
 		frame = nextImg.clone();
-		m_container.perform(nextImg);
 
 		if(true == nextImg.empty())
 		{
 			break;
 		}
 
+		m_container.perform(nextImg);
+		
 		if(false == isInitialized)
 		{
 			isInitialized = true;

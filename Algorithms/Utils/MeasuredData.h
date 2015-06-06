@@ -5,6 +5,18 @@
 #include<utility>
 #include <opencv2/core/core.hpp>
 
+struct Result
+{
+	Result(double w, double h, double dist) : width(w), height(h), distance(dist)
+	{
+
+	}
+
+	double width;
+	double height;
+	double distance;
+};
+
 class CMeasuredData
 {
 public:
@@ -12,7 +24,7 @@ public:
 	void addPredictPoints(const cv::Point &p1, const cv::Point &p2);
 	void addComputeTime(double time);
 	double getAvgTime();
-	std::pair<double,double> getAvgMark();	
+	Result getAvgMark();	
 
 private:
 

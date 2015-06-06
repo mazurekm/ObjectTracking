@@ -59,12 +59,12 @@ double CMeasuredData::getAvgTime()
 	return std::accumulate(m_timeList.begin(), m_timeList.end(), 0.0) / (double) m_timeList.size();
 }
 
-std::pair<double, double> CMeasuredData::getAvgMark()
+Result CMeasuredData::getAvgMark()
 {
 	auto refIter = m_referenceList.begin();
 	auto predIter = m_predictList.begin();
 	
-	double avgXdiff = 0, avgYdiff = 0, areaDiff = 0;
+	double avgXdiff = 0, avgYdiff = 0, heightDiff = 0, widthDiff = 0;
 
 	for(size_t i = 0; i<m_predictList.size(); ++i)
 	{
@@ -76,7 +76,8 @@ std::pair<double, double> CMeasuredData::getAvgMark()
 			double xPredVec = abs(predIter->first.x - predIter->second.x);
 		   	double yPredVec = abs(predIter->first.y - predIter->second.y);
 
-			areaDiff += abs(xRefVec * yRefVec - xPredVec * yPredVec); 
+			widthDiff += abs(xRefVec - xPredVec); 
+			heightDiff +=  abs(yRefVec - yPredVec);
 
 			avgXdiff += abs(refIter->first.x - predIter->first.x);
 			avgYdiff += abs(refIter->first.y - predIter->first.y);	
@@ -88,8 +89,11 @@ std::pair<double, double> CMeasuredData::getAvgMark()
 	avgXdiff /= m_predictList.size();
 	avgYdiff /= m_predictList.size();
 
-	areaDiff /= m_predictList.size();
+	double distance = sqrt(avgXdiff * avgXdiff + avgYdiff * avgYdiff);
 
-	return std::make_pair(sqrt(avgXdiff * avgXdiff + avgYdiff * avgYdiff), areaDiff);
+	widthDiff /= m_predictList.size();
+	heightDiff /= m_predictList.size();
+
+	return Result(widthDiff, heightDiff, distance);
 }	
 
